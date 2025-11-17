@@ -1,5 +1,5 @@
 // config.js - Configuración central de la API
-const API_BASE_URL = 'https://labpilot-backend.onrender.com/api';
+const API_BASE_URL = 'https://labpilot-backend-r1dm.onrender.com/api';
 
 const API_ENDPOINTS = {
   usuarios: `${API_BASE_URL}/usuarios`,
