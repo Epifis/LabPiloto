@@ -1,0 +1,76 @@
+services:
+  # ===============================
+  # BASE DE DATOS POSTGRESQL
+  # ===============================
+  postgres:
+    image: postgres:13
+    container_name: labpilot-db
+    environment:
+      POSTGRES_DB: laboratorio_universidad
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./base_de_datos/estructura_basica.sql:/docker-entrypoint-initdb.d/01-structure.sql
+      - ./base_de_datos/datos_prueba.sql:/docker-entrypoint-initdb.d/02-data.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d laboratorio_universidad"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - labpilot-network
+
+  # ===============================
+  # BACKEND SPRING BOOT
+  # ===============================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: labpilot-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/laboratorio_universidad
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - labpilot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ===============================
+  # FRONTEND NGINX
+  # ===============================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: labpilot-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - labpilot-network
+
+volumes:
+  postgres_data:
+
+networks:
+  labpilot-network:
+    driver: bridge

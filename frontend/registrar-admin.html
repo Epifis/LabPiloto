@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>Solicitar Admin - LabPilot UPC</title>
+    <link rel="stylesheet" href="css/registrar-admin.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🔐 Solicitar cuenta de Administrador</h2>
+        <p class="subtitle">LabPilot UPC - Sistema de Gestión de Laboratorios</p>
+        
+        <div class="info-box">
+            ℹ️ Tu solicitud será revisada por un administrador. Recibirás un correo con la decisión.
+        </div>
+        
+        <form id="formAdmin">
+            <div class="form-group">
+                <label for="nombre">Nombres *</label>
+                <input type="text" id="nombre" placeholder="Ej: Juan Pablo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="apellido">Apellidos *</label>
+                <input type="text" id="apellido" placeholder="Ej: García López" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="correo">Correo electrónico *</label>
+                <input type="email" id="correo" placeholder="tu-correo@upc.edu.co" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña *</label>
+                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar contraseña *</label>
+                <input type="password" id="confirmPassword" placeholder="Repite tu contraseña" required>
+            </div>
+            
+            <button type="submit" id="btnSubmit">Enviar solicitud</button>
+            
+            <div class="loading" id="loading">
+                ⏳ Enviando solicitud...
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+        </form>
+    </div>
+    <script src="js/registrar-admin.js"></script>
+</body>
+</html>

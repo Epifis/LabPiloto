@@ -1,0 +1,24 @@
+# Usa la misma base que tu Dockerfile actual
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Copiar el backend
+COPY backend/labpilot/ ./backend/
+COPY application-docker.properties ./backend/
+
+# Si usas Maven/Gradle, copiar archivos de build
+COPY backend/labpilot/pom.xml ./backend/
+COPY backend/labpilot/build.gradle ./backend/
+
+# Comandos para construir (AJUSTA SEGÚN TU TECNOLOGÍA)
+RUN cd backend && \
+    ./gradlew build -x test || \
+    ./mvnw clean package -DskipTests
+
+# Exponer puerto
+EXPOSE 8080
+
+# Comando de inicio (AJUSTA)
+CMD ["java", "-jar", "backend/build/libs/app.jar"]
+# O: CMD ["java", "-jar", "backend/target/app.jar"]
