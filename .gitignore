@@ -1,0 +1,23 @@
+# AWS y Seguridad - NO SUBIR NUNCA
+*.pem
+*.key
+*.p12
+*.cer
+*.crt
+.env
+.env.*
+application-aws.properties
+src/main/resources/application-aws.properties
+
+# Logs y temporales
+*.log
+logs/
+target/
+build/
+node_modules/
+.idea/
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
