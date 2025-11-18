@@ -10,7 +10,7 @@ COPY backend/labpilot/pom.xml .
 COPY backend/labpilot/src ./src
 
 # Copiar properties de producción
-COPY application-docker.properties ./src/main/resources/application.properties
+COPY application-docker.properties ./src/main/resources/application-aws.properties
 
 # Construir la aplicación
 RUN mvn clean package -DskipTests
