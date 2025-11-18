@@ -1,4 +1,4 @@
-const API_BASE = 'https://labpilot-backend-r1dm.onrender.com/api';
+const API_BASE = 'https://labpiloto.com/api';
 
 const form = document.getElementById('formAdmin');
 const btnSubmit = document.getElementById('btnSubmit');
