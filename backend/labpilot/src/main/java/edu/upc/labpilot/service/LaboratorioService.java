@@ -22,10 +22,6 @@ public class LaboratorioService {
         return laboratorioRepository.findById(id);
     }
 
-    public Laboratorio save(Laboratorio laboratorio) {
-        return laboratorioRepository.save(laboratorio);
-    }
-
     public void delete(Integer id) {
         laboratorioRepository.deleteById(id);
     }
@@ -36,4 +32,20 @@ public class LaboratorioService {
             .filter(lab -> "Activo".equalsIgnoreCase(lab.getEstado()))
             .toList();
     }
+
+    public Laboratorio save(Laboratorio lab) {
+
+    if (lab.getCapacidadDisponible() > lab.getCapacidad()) {
+        lab.setCapacidadDisponible(lab.getCapacidad());
+    }
+    if (lab.getCapacidadDisponible() < 0) {
+        lab.setCapacidadDisponible(0);
+    }
+    if (lab.getCapacidad() < 0) {
+        lab.setCapacidad(0);
+    }
+
+    return laboratorioRepository.save(lab);
+}
+
 }

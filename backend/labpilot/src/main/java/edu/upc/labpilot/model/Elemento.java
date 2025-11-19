@@ -26,6 +26,9 @@ public class Elemento {
     @Column(name = "cantidad_disponible", nullable = false)
     private Integer cantidadDisponible;
 
+    @Column(name = "categoria", length = 50)
+    private String categoria;
+
     // Getters y setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -44,4 +47,7 @@ public class Elemento {
 
     public Integer getCantidadDisponible() { return cantidadDisponible; }
     public void setCantidadDisponible(Integer cantidadDisponible) { this.cantidadDisponible = cantidadDisponible; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 }

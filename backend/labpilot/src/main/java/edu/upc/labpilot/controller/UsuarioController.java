@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -67,6 +68,17 @@ public class UsuarioController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Usuario> cambiarEstado(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Boolean> body) {
+
+        boolean nuevoEstado = body.get("activo");
+        Usuario usuario = usuarioService.cambiarEstado(id, nuevoEstado);
+        return ResponseEntity.ok(usuario);
+    }
+
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {

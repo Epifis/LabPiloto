@@ -1,13 +1,3 @@
--- ==========================================================
--- LABORATORIO UNIVERSIDAD - ESTRUCTURA OPTIMIZADA
--- ==========================================================
-
--- Crear la base de datos si no existe
-SELECT 'CREATE DATABASE laboratorio_universidad'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'laboratorio_universidad')\gexec
-
--- Conectar a la base de datos
-\c laboratorio_universidad;
 
 -- ==========================================================
 -- ELIMINAR TABLAS EXISTENTES (SOLO PARA DESARROLLO)
@@ -247,7 +237,71 @@ INSERT INTO laboratorio_horario(id_laboratorio, dia_semana, hora_inicio, hora_fi
 SELECT id_laboratorio, d, '06:00', '21:00'
 FROM laboratorio, generate_series(1,6) d;
 
--- ==========================================================
--- MENSAJE FINAL
--- ==========================================================
-SELECT 'ESTRUCTURA OPTIMIZADA CREADA EXITOSAMENTE' AS mensaje;
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_prevent_last_superadmin_delete ON usuario;
+DROP TRIGGER IF EXISTS trigger_prevent_last_superadmin_update ON usuario;
+DROP TRIGGER IF EXISTS trigger_prevent_last_superadmin_deactivate ON usuario;
+DROP FUNCTION IF EXISTS prevent_last_superadmin_deletion();
+DROP FUNCTION IF EXISTS prevent_last_superadmin_role_change();
+DROP FUNCTION IF EXISTS prevent_last_superadmin_deactivate();
+
+
+-- 1. Trigger para prevenir ELIMINAR el último superAdmin
+CREATE OR REPLACE FUNCTION prevent_last_superadmin_deletion()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Si se está intentando eliminar un superAdmin (con 'A' mayúscula)
+    IF OLD.rol = 'superAdmin' THEN
+        -- Contar cuántos superAdmins quedan (excluyendo el que se va a eliminar)
+        IF (SELECT COUNT(*) FROM usuario WHERE rol = 'superAdmin' AND id_usuario != OLD.id_usuario) = 0 THEN
+            RAISE EXCEPTION 'No se puede eliminar el último superAdmin del sistema';
+        END IF;
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_prevent_last_superadmin_delete
+    BEFORE DELETE ON usuario
+    FOR EACH ROW
+    EXECUTE FUNCTION prevent_last_superadmin_deletion();
+
+-- 2. Trigger para prevenir ACTUALIZAR el rol del último superAdmin
+CREATE OR REPLACE FUNCTION prevent_last_superadmin_role_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Si se está cambiando un superAdmin a otro rol
+    IF OLD.rol = 'superAdmin' AND NEW.rol != 'superAdmin' THEN
+        -- Verificar si es el último superAdmin
+        IF (SELECT COUNT(*) FROM usuario WHERE rol = 'superAdmin' AND id_usuario != OLD.id_usuario) = 0 THEN
+            RAISE EXCEPTION 'No se puede cambiar el rol del último superAdmin del sistema';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_prevent_last_superadmin_update
+    BEFORE UPDATE ON usuario
+    FOR EACH ROW
+    EXECUTE FUNCTION prevent_last_superadmin_role_change();
+
+-- 3. Trigger para prevenir DESACTIVAR el último superAdmin
+CREATE OR REPLACE FUNCTION prevent_last_superadmin_deactivate()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Si se está desactivando un superAdmin
+    IF OLD.rol = 'superAdmin' AND OLD.activo = true AND NEW.activo = false THEN
+        -- Verificar si es el último superAdmin activo
+        IF (SELECT COUNT(*) FROM usuario WHERE rol = 'superAdmin' AND activo = true AND id_usuario != OLD.id_usuario) = 0 THEN
+            RAISE EXCEPTION 'No se puede desactivar el último superAdmin activo del sistema';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_prevent_last_superadmin_deactivate
+    BEFORE UPDATE ON usuario
+    FOR EACH ROW
+    EXECUTE FUNCTION prevent_last_superadmin_deactivate();

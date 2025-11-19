@@ -40,7 +40,7 @@ public class ElementoController {
     public ResponseEntity<Elemento> update(@PathVariable Integer id, @RequestBody Elemento elemento) {
         return elementoService.getById(id)
             .map(existing -> {
-                elemento.setId(id);
+                elemento.setId(id); 
                 return ResponseEntity.ok(elementoService.save(elemento));
             })
             .orElse(ResponseEntity.notFound().build());
@@ -54,4 +54,18 @@ public class ElementoController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/{id}/cantidad")
+public ResponseEntity<Elemento> actualizarCantidad(
+        @PathVariable Integer id, 
+        @RequestParam Integer cantidadDelta) {
+    try {
+        return elementoService.actualizarCantidad(id, cantidadDelta)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    } catch (RuntimeException e) {
+        return ResponseEntity.badRequest().build();
+    }
+}
+
 }

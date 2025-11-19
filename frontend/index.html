@@ -9,9 +9,7 @@
 <body>
   <header>
     <h1>LabPilot UPC</h1>
-    <nav>
-      <a href="login.html">Administradores</a>
-    </nav>
+    <nav><a href="login.html">admin</a></nav>
   </header>
 
   <main>
@@ -27,39 +25,99 @@
       <h3>Correcto uso de LabPilot</h3>
       <p>
         Bienvenido al sistema de reservas de la Universidad Piloto de Colombia.
-        Aquí podrás gestionar tus solicitudes de uso de laboratorios y préstamo de equipos
-        de manera ágil y controlada. Recuerda reservar con anticipación y cumplir los horarios establecidos.
+        Reserva laboratorios y productos de forma ágil y controlada.
       </p>
     </section>
 
-    <!-- ===== FORMULARIO LABORATORIO ===== -->
+    <!-- ================= FORMULARIO LABORATORIO ================= -->
     <section id="reservaLaboratorio" class="formulario-container" hidden>
       <h3>Reserva de Laboratorio</h3>
+
       <form id="formLab" class="formulario">
-        <label>Nombre completo: <input type="text" required></label>
-        <label>Correo institucional: <input type="email" required></label>
-        <label>Carrera: <input type="text" required></label>
-        <label>Código o Documento: <input type="text" required></label>
+        <label>Nombre completo:
+          <input type="text" required>
+        </label>
+
+        <label>Correo institucional:
+          <input type="email" required>
+        </label>
+
+        <label>Carrera:
+          <input type="text" required>
+        </label>
+
+        <label>Código o Documento:
+          <input type="text" required>
+        </label>
+
         <label>Sala de Laboratorio:
           <select required>
             <option value="">Cargando...</option>
           </select>
         </label>
-        <label>Fecha de reserva: <input type="date" required></label>
-        <label>Hora de reserva: <input type="time" required></label>
+
+        <label>Fecha de reserva:
+          <input type="date" required>
+        </label>
+
+        <label>Hora de inicio:
+          <input type="time" required>
+        </label>
+
+        <label>Hora de entrega:
+          <input type="time" required>
+        </label>
+
+        <!-- 🔥 NUEVO: Estudiantes adicionales -->
+        <label>¿Participan más estudiantes?
+          <select id="masEstudiantes">
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+          </select>
+        </label>
+
+        <div id="listaEstudiantes" hidden>
+          <h4>Registrar estudiantes adicionales</h4>
+
+          <div id="estudiantesContainer"></div>
+
+          <button type="button" id="btnAgregarEstudiante" class="btn-agregar">
+            + Agregar estudiante
+          </button>
+        </div>
+
         <button type="submit" class="btn-form">Enviar Reserva</button>
       </form>
     </section>
 
-    <!-- ===== FORMULARIO PRODUCTOS ===== -->
+    <!-- ================= FORMULARIO PRODUCTOS ================= -->
     <section id="reservaProductos" class="formulario-container" hidden>
       <h3>Reserva de Productos</h3>
+
       <form id="formProd" class="formulario">
-        <label>Nombre completo: <input type="text" required></label>
-        <label>Correo institucional: <input type="email" required></label>
-        <label>Código o Documento: <input type="text" required></label>
-        <label>Fecha de uso: <input type="date" required></label>
-        <label>Hora de uso: <input type="time" required></label>
+        <label>Nombre completo:
+          <input type="text" required>
+        </label>
+
+        <label>Correo institucional:
+          <input type="email" required>
+        </label>
+
+        <label>Código o Documento:
+          <input type="text" required>
+        </label>
+
+        <label>Fecha de uso:
+          <input type="date" required>
+        </label>
+
+        <label>Hora de inicio:
+          <input type="time" required>
+        </label>
+
+        <label>Hora de entrega:
+          <input type="time" required>
+        </label>
 
         <div id="productosContainer">
           <div class="producto-item">
@@ -68,12 +126,15 @@
                 <option value="">Cargando...</option>
               </select>
             </label>
+
             <label>Cantidad:
               <input type="number" min="1" value="1" required>
             </label>
           </div>
         </div>
+
         <button type="button" id="btnAgregarProducto">+ Agregar otro producto</button>
+
         <button type="submit" class="btn-form">Enviar Solicitud</button>
       </form>
     </section>
@@ -81,8 +142,7 @@
     <section id="contacto" class="info">
       <h3>Contacto</h3>
       <p>
-        Para asistencia técnica o soporte con las reservas, comunícate con:
-        <strong>soporte.labpilot@upc.edu.co</strong> o al número (601) 318 791 1365.
+        Para soporte escribe a: <strong>soporte.labpilot@upc.edu.co</strong>
       </p>
     </section>
   </main>
@@ -93,5 +153,6 @@
 
   <script src="js/config.js"></script>
   <script src="js/events.js"></script>
+  <script src="js/estudiantes.js"></script>
 </body>
 </html>

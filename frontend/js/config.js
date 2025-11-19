@@ -39,6 +39,17 @@ const api = {
     return response.json();
   },
 
+  // ✅ MÉTODO PATCH AGREGADO
+  async patch(url, data) {
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: data ? JSON.stringify(data) : null
+    });
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    return response.json();
+  },
+
   async delete(url) {
     const response = await fetch(url, { method: 'DELETE' });
     if (!response.ok) throw new Error(`Error: ${response.status}`);

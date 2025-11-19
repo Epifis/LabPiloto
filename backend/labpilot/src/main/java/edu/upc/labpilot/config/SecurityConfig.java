@@ -27,20 +27,24 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authz -> authz
-            .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/laboratorios/**").permitAll()
-            .requestMatchers("/api/elementos/**").permitAll()
-            .requestMatchers("/api/reservas/**").permitAll()
-            .requestMatchers("/api/prestamos/**").permitAll()
-            .requestMatchers("/api/usuarios/**").permitAll()
-            .requestMatchers("/actuator/health").permitAll()
-            .requestMatchers("/swagger-ui/**").permitAll()
-            .requestMatchers("/api-docs/**").permitAll()
 
-            .requestMatchers("/api/admins/**").hasRole("ADMIN")
-            
-            .anyRequest().permitAll()  
-        )
+    // Rutas públicas
+    .requestMatchers("/api/auth/**").permitAll()
+    .requestMatchers("/api/laboratorios/**").permitAll()
+    .requestMatchers("/api/elementos/**").permitAll()
+    .requestMatchers("/api/reservas/**").permitAll()
+    .requestMatchers("/api/prestamos/**").permitAll()
+    .requestMatchers("/api/usuarios/**").permitAll()
+    .requestMatchers("/actuator/health").permitAll()
+    .requestMatchers("/swagger-ui/**").permitAll()
+    .requestMatchers("/api-docs/**").permitAll()
+    .requestMatchers("/api/admins/solicitar/**").permitAll()
+    .requestMatchers("/api/admins/aprobar/**").permitAll()
+
+    .requestMatchers("/api/admins/**").hasRole("ADMIN")
+
+    .anyRequest().permitAll()
+)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

@@ -3,8 +3,6 @@
 -- - Horarios: Realistas (dentro de 06:00 - 21:00, Lun-Sáb)
 -- ==========================================================
 
-\c laboratorio_universidad;
-
 -- ===============================
 -- Asegurar superadmin base (si no existe)
 -- ===============================

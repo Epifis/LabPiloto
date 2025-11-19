@@ -36,15 +36,23 @@ public class LaboratorioController {
         return laboratorioService.save(laboratorio);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Laboratorio> update(@PathVariable Integer id, @RequestBody Laboratorio laboratorio) {
-        return laboratorioService.getById(id)
-            .map(existing -> {
-                laboratorio.setId(id);
-                return ResponseEntity.ok(laboratorioService.save(laboratorio));
-            })
-            .orElse(ResponseEntity.notFound().build());
-    }
+   @PutMapping("/{id}")
+public ResponseEntity<Laboratorio> update(@PathVariable Integer id, @RequestBody Laboratorio lab) {
+    return laboratorioService.getById(id)
+        .map(existing -> {
+
+            existing.setNombre(lab.getNombre());
+            existing.setUbicacion(lab.getUbicacion());
+            existing.setCapacidad(lab.getCapacidad());
+            existing.setCapacidadDisponible(lab.getCapacidadDisponible());
+            existing.setEstado(lab.getEstado());
+            existing.setDescripcion(lab.getDescripcion());
+
+            return ResponseEntity.ok(laboratorioService.save(existing));
+        })
+        .orElse(ResponseEntity.notFound().build());
+}
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
@@ -54,4 +62,15 @@ public class LaboratorioController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PatchMapping("/{id}/estado")
+public ResponseEntity<Laboratorio> cambiarEstado(@PathVariable Integer id, @RequestBody String estado) {
+    return laboratorioService.getById(id)
+        .map(existing -> {
+            existing.setEstado(estado.replace("\"", "")); // Limpia comillas JSON
+            return ResponseEntity.ok(laboratorioService.save(existing));
+        })
+        .orElse(ResponseEntity.notFound().build());
+}
+
 }

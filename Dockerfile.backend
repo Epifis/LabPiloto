@@ -9,8 +9,8 @@ WORKDIR /app
 COPY backend/labpilot/pom.xml .
 COPY backend/labpilot/src ./src
 
-# Copiar properties de producción
-COPY application-docker.properties ./src/main/resources/application-aws.properties
+# Copiar properties de AWS
+COPY application-aws.properties ./src/main/resources/application-aws.properties
 
 # Construir la aplicación
 RUN mvn clean package -DskipTests
@@ -28,5 +28,5 @@ COPY --from=build /app/target/*.jar app.jar
 # Exponer puerto
 EXPOSE 8080
 
-# Comando de ejecución
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Comando de ejecución forzando perfil AWS
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=aws", "app.jar"]

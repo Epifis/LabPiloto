@@ -4,7 +4,7 @@ import edu.upc.labpilot.model.Elemento;
 import edu.upc.labpilot.repository.ElementoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,4 +36,23 @@ public class ElementoService {
             .filter(e -> "Disponible".equalsIgnoreCase(e.getEstado()))
             .toList();
     }
+
+    @Transactional
+    public Optional<Elemento> actualizarCantidad(Integer id, Integer cantidadDelta) {
+    return elementoRepository.findById(id).map(e -> {
+        int nuevaCantidadTotal = e.getCantidadTotal() + cantidadDelta;
+        int nuevaCantidadDisponible = e.getCantidadDisponible() + cantidadDelta;
+
+        // Validar que no sean menores que 0
+        if (nuevaCantidadTotal < 0 || nuevaCantidadDisponible < 0) {
+            throw new RuntimeException("La cantidad no puede ser menor que 0");
+        }
+
+        e.setCantidadTotal(nuevaCantidadTotal);
+        e.setCantidadDisponible(nuevaCantidadDisponible);
+
+        return elementoRepository.save(e);
+    });
+}
+
 }

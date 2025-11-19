@@ -39,4 +39,13 @@ public class UsuarioService {
     public boolean existsByCorreo(String correo) {
         return usuarioRepository.existsByCorreo(correo);
     }
+
+    public Usuario cambiarEstado(Integer id, boolean activo) {
+    Usuario u = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+    u.setActivo(activo);
+    return usuarioRepository.save(u);
+}
+
 }
