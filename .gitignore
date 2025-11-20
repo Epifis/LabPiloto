@@ -21,3 +21,5 @@ node_modules/
 # Sistema
 .DS_Store
 Thumbs.db
+stress-tests/reports/raw-data/
+*.json
