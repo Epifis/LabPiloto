@@ -21,34 +21,42 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(cors -> cors.configure(http))
-        .csrf(csrf -> csrf.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(authz -> authz
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.configure(http))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(authz -> authz
 
-    // Rutas públicas
-    .requestMatchers("/api/auth/**").permitAll()
-    .requestMatchers("/api/laboratorios/**").permitAll()
-    .requestMatchers("/api/elementos/**").permitAll()
-    .requestMatchers("/api/reservas/**").permitAll()
-    .requestMatchers("/api/prestamos/**").permitAll()
-    .requestMatchers("/api/usuarios/**").permitAll()
-    .requestMatchers("/actuator/health").permitAll()
-    .requestMatchers("/swagger-ui/**").permitAll()
-    .requestMatchers("/api-docs/**").permitAll()
-    .requestMatchers("/api/admins/solicitar/**").permitAll()
-    .requestMatchers("/api/admins/aprobar/**").permitAll()
+                // ✅ Rutas de autenticación (públicas)
+                .requestMatchers("/api/auth/login").permitAll()
+                
+                // ✅ Rutas protegidas de autenticación (requieren token)
+                .requestMatchers("/api/auth/verify").authenticated()
+                .requestMatchers("/api/auth/logout").authenticated()
 
-    .requestMatchers("/api/admins/**").hasRole("ADMIN")
+                // Rutas públicas
+                .requestMatchers("/api/laboratorios/**").permitAll()
+                .requestMatchers("/api/elementos/**").permitAll()
+                .requestMatchers("/api/reservas/**").permitAll()
+                .requestMatchers("/api/prestamos/**").permitAll()
+                .requestMatchers("/api/usuarios/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/api-docs/**").permitAll()
+                .requestMatchers("/api/admins/solicitar/**").permitAll()
+                .requestMatchers("/api/admins/aprobar/**").permitAll()
 
-    .anyRequest().permitAll()
-)
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // ✅ Rutas de administración (requieren ROLE_ADMIN o ROLE_SUPERADMIN)
+                .requestMatchers("/api/admins/**").hasAnyRole("ADMIN", "SUPERADMIN")
 
-    return http.build();
-}
+                .anyRequest().permitAll()
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

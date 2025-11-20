@@ -1,14 +1,10 @@
 package edu.upc.labpilot.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.*;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "reserva")
@@ -28,37 +24,48 @@ public class Reserva {
     @Column(name = "estado", length = 20)
     private String estado;
 
-    @Column(name = "tipo_reserva", nullable = false, length = 20)
-    private String tipoReserva;
-
-    @Column(name = "es_recurrente")
-    private Boolean esRecurrente = false;
-
-    @Column(name = "nrc_curso", length = 20)
-    private String nrcCurso;
-
-    @Column(name = "cantidad_estudiantes")
-    private Integer cantidadEstudiantes;
-
-    @Column(name = "grupo_recurrencia", columnDefinition = "UUID")
-    private UUID grupoRecurrencia;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_usuario", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_laboratorio", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Laboratorio laboratorio;
 
-    // 🔗 Relación con los invitados
-     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore // Para evitar recursión infinita en JSON
+    @Column(name = "nrc_curso", length = 20)
+    private String nrcCurso;
+
+    @Column(name = "tipo_reserva", length = 20, nullable = false)
+    private String tipoReserva;
+
+    @Column(name = "grupo_recurrencia")
+    private UUID grupoRecurrencia;
+
+    @Column(name = "es_recurrente")
+    private Boolean esRecurrente;
+
+    @Column(name = "cantidad_estudiantes")
+    private Integer cantidadEstudiantes;
+
+    @Column(name = "titulo", length = 200)
+    private String titulo;
+
+    @Column(name = "descripcion", columnDefinition = "TEXT")
+    private String descripcion;
+
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
+
+    // ✅ IMPORTANTE: Cargar los invitados automáticamente
+    @OneToMany(mappedBy = "reserva", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<ReservaInvitado> invitados;
 
-    // ======= GETTERS & SETTERS =======
+    // ========== CONSTRUCTORES ==========
+    public Reserva() {
+    }
+
+    // ========== GETTERS Y SETTERS ==========
     public Integer getId() {
         return id;
     }
@@ -91,12 +98,20 @@ public class Reserva {
         this.estado = estado;
     }
 
-    public String getTipoReserva() {
-        return tipoReserva;
+    public Usuario getUsuario() {
+        return usuario;
     }
 
-    public void setTipoReserva(String tipoReserva) {
-        this.tipoReserva = tipoReserva;
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Laboratorio getLaboratorio() {
+        return laboratorio;
+    }
+
+    public void setLaboratorio(Laboratorio laboratorio) {
+        this.laboratorio = laboratorio;
     }
 
     public String getNrcCurso() {
@@ -105,6 +120,22 @@ public class Reserva {
 
     public void setNrcCurso(String nrcCurso) {
         this.nrcCurso = nrcCurso;
+    }
+
+    public String getTipoReserva() {
+        return tipoReserva;
+    }
+
+    public void setTipoReserva(String tipoReserva) {
+        this.tipoReserva = tipoReserva;
+    }
+
+    public UUID getGrupoRecurrencia() {
+        return grupoRecurrencia;
+    }
+
+    public void setGrupoRecurrencia(UUID grupoRecurrencia) {
+        this.grupoRecurrencia = grupoRecurrencia;
     }
 
     public Boolean getEsRecurrente() {
@@ -123,28 +154,28 @@ public class Reserva {
         this.cantidadEstudiantes = cantidadEstudiantes;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public String getTitulo() {
+        return titulo;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
-    public UUID getGrupoRecurrencia() {
-        return grupoRecurrencia;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setGrupoRecurrencia(UUID grupoRecurrencia) {
-        this.grupoRecurrencia = grupoRecurrencia;
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
-    public Laboratorio getLaboratorio() {
-        return laboratorio;
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
     }
 
-    public void setLaboratorio(Laboratorio laboratorio) {
-        this.laboratorio = laboratorio;
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 
     public List<ReservaInvitado> getInvitados() {

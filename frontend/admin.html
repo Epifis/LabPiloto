@@ -5,8 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Administración | LabPilot</title>
   <link rel="stylesheet" href="css/admin.css" />
+
+  <script type="module">
+    import { verificarAutenticacion, iniciarVerificacionContinua } from './js/modules/auth.js';
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await verificarAutenticacion();
+        if (user) {
+            // Ocultar "Agregar Admins" si no es superAdmin
+            if (user.rol !== 'superAdmin') {
+                const linkRegistrar = document.getElementById('link-registrar-admin');
+                if (linkRegistrar) linkRegistrar.style.display = 'none';
+            }
+            iniciarVerificacionContinua();
+        }
+    });
+</script>
 </head>
 <body>
+  
   <div class="layout">
     <!-- ======= BARRA LATERAL ======= -->
     <aside class="sidebar">

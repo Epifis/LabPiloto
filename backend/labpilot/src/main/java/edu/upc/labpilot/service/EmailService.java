@@ -1,5 +1,7 @@
 package edu.upc.labpilot.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,7 +20,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String correoRemitente;
     
-    @Value("${app.base.url:http://localhost:8080}")
+    @Value("${app.base.url:https://labpiloto.com}")
     private String baseUrl;
 
     // Enviar solicitud al administrador con enlaces de aprobación/rechazo
@@ -129,4 +131,76 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    // ===============================
+    //  NOTIFICAR PRÉSTAMO
+    // ===============================
+    public void notificarPrestamoAprobado(String correo, String nombre, String fecha, List<String> elementos) {
+        String asunto = "📦 Tu solicitud de préstamo fue APROBADA";
+
+        String mensaje = "Hola " + nombre + "!\n\n"
+                + "Tu solicitud de préstamo ha sido APROBADA.\n\n"
+                + "📅 Fecha: " + fecha + "\n"
+                + "📘 Elementos aprobados:\n"
+                + String.join("\n", elementos) + "\n\n"
+                + "Puedes acercarte a recoger los elementos.\n\n"
+                + "LabPilot UPC";
+
+        enviarCorreo(correo, asunto, mensaje);
+    }
+
+    public void notificarPrestamoRechazado(String correo, String nombre) {
+        String asunto = "❌ Tu solicitud de préstamo fue RECHAZADA";
+
+        String mensaje = "Hola " + nombre + "!\n\n"
+                + "Lamentamos informarte que tu solicitud de préstamo fue rechazada.\n\n"
+                + "Si necesitas más información acércate al laboratorio.\n\n"
+                + "LabPilot UPC";
+
+        enviarCorreo(correo, asunto, mensaje);
+    }
+
+    // ===============================
+    //  NOTIFICAR RESERVA
+    // ===============================
+    public void notificarReservaAprobada(String correo, String nombre, String lab, String inicio) {
+        String asunto = "🏫 Tu reserva fue APROBADA";
+
+        String mensaje = "Hola " + nombre + "!\n\n"
+                + "Tu reserva para el laboratorio " + lab + " ha sido APROBADA.\n\n"
+                + "📅 Inicio: " + inicio + "\n\n"
+                + "Disfruta tu uso del laboratorio.\n\n"
+                + "LabPilot UPC";
+
+        enviarCorreo(correo, asunto, mensaje);
+    }
+
+    public void notificarReservaRechazada(String correo, String nombre) {
+        String asunto = "❌ Tu reserva fue RECHAZADA";
+
+        String mensaje = "Hola " + nombre + "!\n\n"
+                + "Tu reserva fue rechazada.\n"
+                + "Si necesitas más información acércate al laboratorio.\n\n"
+                + "LabPilot UPC";
+
+        enviarCorreo(correo, asunto, mensaje);
+    }
+
+    // ===============================
+    // MÉTODO GENÉRICO PARA ENVIAR
+    // ===============================
+    private void enviarCorreo(String destino, String asunto, String contenido) {
+        try {
+            SimpleMailMessage mensaje = new SimpleMailMessage();
+            mensaje.setTo(destino);
+            mensaje.setSubject(asunto);
+            mensaje.setText(contenido);
+            mensaje.setFrom(correoRemitente);
+
+            mailSender.send(mensaje);
+        } catch (Exception e) {
+            System.err.println("❌ Error enviando correo: " + e.getMessage());
+        }
+    }
+
 }

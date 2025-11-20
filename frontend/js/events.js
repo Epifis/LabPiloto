@@ -1,4 +1,4 @@
-// events.js - Versión con integración de estudiantes adicionales
+// events.js - Versión con integración de estudiantes adicionales (ARREGLADO)
 console.log('Iniciando events.js...');
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -116,18 +116,34 @@ document.addEventListener('DOMContentLoaded', function() {
       const horaFin = formLab.querySelectorAll('input[type="time"]')[1].value;
 
       try {
-        // Buscar o crear usuario
-        let usuario = await buscarOCrearUsuario(nombre, correo, documento, carrera);
+        // ✅ ARREGLADO: Buscar o crear usuario usando el endpoint correcto
+        let usuario = await buscarOCrearUsuarioParaReserva(nombre, correo, documento, carrera);
         
         const fechaInicio = `${fecha}T${horaInicio}:00`;
         const fechaFin = `${fecha}T${horaFin}:00`;
 
-        // Obtener estudiantes adicionales
+        // Obtener estudiantes adicionales (invitados)
         let invitados = [];
         if (window.obtenerEstudiantesAdicionales) {
-          invitados = window.obtenerEstudiantesAdicionales();
-          console.log('Invitados obtenidos:', invitados);
-          console.log('Cantidad de invitados:', invitados.length);
+          const estudiantesAdicionales = window.obtenerEstudiantesAdicionales();
+          console.log('Estudiantes adicionales obtenidos:', estudiantesAdicionales);
+          
+          // ✅ Convertir al formato correcto para ReservaInvitado (SIN correo)
+          invitados = estudiantesAdicionales.map(est => {
+            // Separar nombre completo en nombre y apellido
+            const nombreCompleto = est.nombre.trim();
+            const partes = nombreCompleto.split(/\s+/);
+            const nombreInv = partes[0] || nombreCompleto;
+            const apellidoInv = partes.slice(1).join(' ') || '';
+            
+            return {
+              nombre: nombreInv,
+              apellido: apellidoInv,
+              documento: est.documento || ''
+            };
+          });
+          
+          console.log('Invitados procesados:', invitados);
         }
 
         const reserva = {
@@ -136,8 +152,8 @@ document.addEventListener('DOMContentLoaded', function() {
           tipoReserva: 'practica_libre',
           usuario: { id: usuario.id },
           laboratorio: { id: parseInt(labId) },
-          invitados: invitados.length > 0 ? invitados : null, // Solo enviar si hay invitados
-          cantidadEstudiantes: 1 + invitados.length // Calcular total
+          invitados: invitados.length > 0 ? invitados : null,
+          cantidadEstudiantes: 1 + invitados.length
         };
 
         console.log('Datos de reserva a enviar:', JSON.stringify(reserva, null, 2));
@@ -147,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         alert(`¡Reserva realizada exitosamente! Total de estudiantes: ${reserva.cantidadEstudiantes}`);
         formLab.reset();
+        
         // Limpiar estudiantes adicionales
         const estudiantesContainer = document.getElementById('estudiantesContainer');
         if (estudiantesContainer) {
@@ -156,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (listaEst) listaEst.hidden = true;
         const masEst = document.getElementById('masEstudiantes');
         if (masEst) masEst.value = 'no';
+        
         reservaLaboratorio.hidden = true;
       } catch (error) {
         console.error('Error completo:', error);
@@ -212,8 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       try {
-        // Buscar o crear usuario
-        let usuario = await buscarOCrearUsuario(nombre, correo, documento);
+        // ✅ ARREGLADO: Buscar o crear usuario usando el método correcto
+        let usuario = await buscarOCrearUsuarioParaPrestamo(nombre, correo, documento);
         console.log('Usuario:', usuario.id);
 
         // Crear un préstamo por cada elemento
@@ -296,12 +314,12 @@ if (btnAgregarProducto) {
   console.log('Event listener agregado a btnAgregarProducto');
 }
 
-// Función auxiliar: Buscar o crear usuario
-async function buscarOCrearUsuario(nombre, correo, documento = null, programa = null) {
-  console.log('Buscando/creando usuario:', { nombre, correo, documento });
+// ✅ ARREGLADO: Función auxiliar para buscar o crear usuario (RESERVAS)
+async function buscarOCrearUsuarioParaReserva(nombreCompleto, correo, documento, programa) {
+  console.log('Buscando/creando usuario para reserva:', { nombreCompleto, correo, documento, programa });
   
   try {
-    // Intentar buscar por correo
+    // Intentar buscar por correo primero
     const usuarios = await api.get(API_ENDPOINTS.usuarios);
     let usuario = usuarios.find(u => u.correo === correo);
     
@@ -310,24 +328,81 @@ async function buscarOCrearUsuario(nombre, correo, documento = null, programa = 
       return usuario;
     }
     
-    // Si no existe, crear nuevo
-    const [nombreParte, apellidoParte] = nombre.split(' ', 2);
+    // Si no existe, crear nuevo usando el endpoint /registrar
+    const [nombreParte, ...apellidoPartes] = nombreCompleto.trim().split(/\s+/);
+    const apellido = apellidoPartes.join(' ') || apellidoPartes[0] || 'Sin apellido';
+    
     const nuevoUsuario = {
-      nombre: nombreParte || nombre,
-      apellido: apellidoParte || '',
+      nombre: nombreParte || nombreCompleto,
+      apellido: apellido,
+      correo: correo.trim(),
+      documento: documento ? documento.trim() : '',
+      programa: programa ? programa.trim() : '',
+      rol: 'estudiante',
+      password: '',
+      activo: true
+    };
+    
+    console.log('Creando nuevo usuario:', JSON.stringify(nuevoUsuario, null, 2));
+    
+    try {
+      usuario = await api.post(`${API_ENDPOINTS.usuarios}/registrar`, nuevoUsuario);
+      console.log('Usuario creado exitosamente:', usuario.id);
+      return usuario;
+    } catch (registroError) {
+      console.error('Error detallado del servidor:', registroError);
+      
+      // Intentar obtener más detalles del error
+      if (registroError.response) {
+        console.error('Respuesta del servidor:', registroError.response);
+        throw new Error(`Error del servidor: ${registroError.response.error || registroError.response}`);
+      }
+      
+      throw new Error(`No se pudo crear el usuario. Verifica que todos los campos estén correctos.`);
+    }
+    
+  } catch (error) {
+    console.error('Error al buscar/crear usuario:', error);
+    throw error;
+  }
+}
+
+// ✅ ARREGLADO: Función auxiliar para buscar o crear usuario (PRÉSTAMOS)
+async function buscarOCrearUsuarioParaPrestamo(nombreCompleto, correo, documento) {
+  console.log('Buscando/creando usuario para préstamo:', { nombreCompleto, correo, documento });
+  
+  try {
+    // Intentar buscar por correo primero
+    const usuarios = await api.get(API_ENDPOINTS.usuarios);
+    let usuario = usuarios.find(u => u.correo === correo);
+    
+    if (usuario) {
+      console.log('Usuario encontrado:', usuario.id);
+      return usuario;
+    }
+    
+    // Si no existe, crear nuevo usando el endpoint /registrar
+    const [nombreParte, ...apellidoPartes] = nombreCompleto.trim().split(/\s+/);
+    const apellido = apellidoPartes.join(' ') || '';
+    
+    const nuevoUsuario = {
+      nombre: nombreParte || nombreCompleto,
+      apellido: apellido,
       correo: correo,
-      documento: documento,
-      programa: programa,
-      rol: 'estudiante'
+      documento: documento || '',
+      programa: '',
+      rol: 'estudiante',
+      password: '', // Sin contraseña para usuarios públicos
+      activo: true
     };
     
     console.log('Creando nuevo usuario:', nuevoUsuario);
-    usuario = await api.post(API_ENDPOINTS.usuarios, nuevoUsuario);
+    usuario = await api.post(`${API_ENDPOINTS.usuarios}/registrar`, nuevoUsuario);
     console.log('Usuario creado:', usuario.id);
     return usuario;
     
   } catch (error) {
     console.error('Error al buscar/crear usuario:', error);
-    throw error;
+    throw new Error('No se pudo crear el usuario: ' + (error.message || 'Error desconocido'));
   }
 }

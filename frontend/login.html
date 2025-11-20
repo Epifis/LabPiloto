@@ -60,17 +60,39 @@
                     throw new Error(errorText || 'Error al iniciar sesión');
                 }
                 
-                const userData = await response.json();
+                const data = await response.json();
                 
-                // Guardar datos del usuario en localStorage
-                localStorage.setItem('adminUser', JSON.stringify(userData));
+                console.log('✅ Respuesta del login:', data);
+                
+                // ✅ CRÍTICO: Verificar que sea admin o superAdmin
+                if (!data.rol || !['superAdmin', 'administrador'].includes(data.rol)) {
+                    throw new Error('Acceso denegado - Solo administradores');
+                }
+                
+                // ✅ CRÍTICO: Guardar el token JWT
+                if (!data.token) {
+                    throw new Error('No se recibió token de autenticación');
+                }
+                
+                localStorage.setItem('authToken', data.token);
+                
+                // Guardar datos del usuario (sin el token)
+                localStorage.setItem('adminUser', JSON.stringify({
+                    id: data.id,
+                    nombre: data.nombre,
+                    apellido: data.apellido,
+                    correo: data.correo,
+                    rol: data.rol
+                }));
+                
+                console.log('✅ Token guardado:', data.token.substring(0, 20) + '...');
                 
                 // Redirigir al panel de administrador
                 window.location.href = 'admin.html';
                 
             } catch (err) {
-                console.error('Error en login:', err);
-                errorMessage.textContent = 'Error ' + err.message;
+                console.error('❌ Error en login:', err);
+                errorMessage.textContent = err.message || 'Error al iniciar sesión';
                 errorMessage.style.display = 'block';
             } finally {
                 loading.style.display = 'none';

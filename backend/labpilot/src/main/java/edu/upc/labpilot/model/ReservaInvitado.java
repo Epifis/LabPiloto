@@ -1,7 +1,7 @@
 package edu.upc.labpilot.model;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 
 @Entity
 @Table(name = "reserva_invitado")
@@ -21,7 +21,7 @@ public class ReservaInvitado {
     @Column(name = "apellido", nullable = false, length = 100)
     private String apellido;
 
-    // 🔥 IMPORTANTE: Esta es la relación que estaba causando el error
+    // Relación con Reserva
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_reserva", nullable = false)
     @JsonIgnore // Para evitar recursión en JSON

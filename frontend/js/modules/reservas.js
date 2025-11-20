@@ -252,31 +252,35 @@ function calcularDuracion(inicio, fin) {
   const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   return `${horas}h ${minutos}m`;
 }
-
+/* ============================================
+   APROBAR
+============================================ */
 export async function aprobarReserva(id) {
   try {
-    await api.put(`${API_ENDPOINTS.reservas}/${id}/aprobar`, {});
-    alert('Reserva aprobada exitosamente');
+    await api.put(`${API_ENDPOINTS.reservas}/${id}/aprobar`);
+
+    alert('Reserva aprobada y correo enviado');
     cerrarModal();
     document.querySelector('.modal-detalle')?.remove();
     mostrarReservas();
   } catch (error) {
-    console.error('Error al aprobar:', error);
     alert('Error al aprobar la reserva');
   }
 }
-
+ /*============================================
+   RECHAZAR
+============================================ */
 export async function rechazarReserva(id) {
-  if (confirm('¿Estás seguro de rechazar esta reserva?')) {
-    try {
-      await api.put(`${API_ENDPOINTS.reservas}/${id}/rechazar`, {});
-      alert('Reserva rechazada');
-      cerrarModal();
-      document.querySelector('.modal-detalle')?.remove();
-      mostrarReservas();
-    } catch (error) {
-      console.error('Error al rechazar:', error);
-      alert('Error al rechazar la reserva');
-    }
+  if (!confirm('¿Estás seguro de rechazar esta reserva?')) return;
+
+  try {
+    await api.put(`${API_ENDPOINTS.reservas}/${id}/rechazar`);
+
+    alert('Reserva rechazada y correo enviado');
+    cerrarModal();
+    document.querySelector('.modal-detalle')?.remove();
+    mostrarReservas();
+  } catch (error) {
+    alert('Error al rechazar la reserva');
   }
 }

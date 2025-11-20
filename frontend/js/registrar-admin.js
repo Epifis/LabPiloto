@@ -1,5 +1,5 @@
 const API_BASE = 'https://labpiloto.com/api/admins'; // ✅ URL CORRECTA
-					
+
 const form = document.getElementById('formAdmin');
 const btnSubmit = document.getElementById('btnSubmit');
 const loading = document.getElementById('loading');
