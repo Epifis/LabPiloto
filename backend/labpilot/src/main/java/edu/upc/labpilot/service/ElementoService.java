@@ -37,22 +37,25 @@ public class ElementoService {
             .toList();
     }
 
-    @Transactional
-    public Optional<Elemento> actualizarCantidad(Integer id, Integer cantidadDelta) {
+@Transactional
+public Optional<Elemento> actualizarCantidad(Integer id, Integer cantidadDelta) {
     return elementoRepository.findById(id).map(e -> {
+        // SOLO modificar cantidadTotal, NO cantidadDisponible
         int nuevaCantidadTotal = e.getCantidadTotal() + cantidadDelta;
-        int nuevaCantidadDisponible = e.getCantidadDisponible() + cantidadDelta;
-
-        // Validar que no sean menores que 0
-        if (nuevaCantidadTotal < 0 || nuevaCantidadDisponible < 0) {
-            throw new RuntimeException("La cantidad no puede ser menor que 0");
+        
+        // Validar que no sea menor que 0
+        if (nuevaCantidadTotal < 0) {
+            throw new RuntimeException("La cantidad total no puede ser menor que 0");
         }
-
+        
         e.setCantidadTotal(nuevaCantidadTotal);
-        e.setCantidadDisponible(nuevaCantidadDisponible);
-
+        
+        // Si estamos reduciendo el inventario total, también ajustar disponibilidad
+        if (cantidadDelta < 0 && e.getCantidadDisponible() > nuevaCantidadTotal) {
+            e.setCantidadDisponible(nuevaCantidadTotal);
+        }
+        
         return elementoRepository.save(e);
     });
 }
-
 }
