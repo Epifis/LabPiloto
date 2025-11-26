@@ -23,3 +23,4 @@ node_modules/
 Thumbs.db
 stress-tests/reports/raw-data/
 *.json
+stress-tests/reports/
