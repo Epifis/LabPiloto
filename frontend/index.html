@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabPilot</title>
+  <meta name="google-site-verification" content="csgB9ETZ1uNsmt7WPTkVpWcwh4ZJEsF_iq0XLnAPbSk" />
+  <link rel="stylesheet" href="css/styles.css" />
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Página principal cargada correctamente.");
+    
+    // Verificar autenticación en cada carga
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('userData');
+    
+    if (!token || !userData) {
+        console.log('No autenticado, redirigiendo...');
+        window.location.href = 'login-estudiante.html';
+        return;
+    }
+    
+    console.log('Usuario autenticado en index:', JSON.parse(userData));
+    
+    // Configurar cierre de sesión
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function() {
+            window.authHelper.cerrarSesion();
+        });
+    }
+});
+</script>
+
+
+</head>
+
+<body>
+  <header>
+    <h1>LabPilot UPC</h1>
+    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+  </header>
+
+  <main>
+    <section id="inicio">
+      <h2>Haz tu reserva en la Universidad Piloto de Colombia</h2>
+      <div class="botones-inicio">
+        <button class="btn-inicio" id="btnLaboratorio">Reserva de Laboratorio</button>
+        <button class="btn-inicio" id="btnProductos">Reserva de Productos</button>
+      </div>
+    </section>
+
+    <section id="instrucciones" class="info">
+      <h3>Correcto uso de LabPilot</h3>
+      <p>
+        Bienvenido al sistema de reservas de la Universidad Piloto de Colombia.
+        Reserva laboratorios y productos de forma ágil y controlada.
+      </p>
+    </section>
+
+    <!-- ================= FORMULARIO LABORATORIO ================= -->
+    <section id="reservaLaboratorio" class="formulario-container" hidden>
+      <h3>Reserva de Laboratorio</h3>
+      
+      <!-- Información del usuario (solo lectura) -->
+      <div class="info-usuario">
+        <h4>Tu información:</h4>
+        <p><strong>Nombre:</strong> <span id="infoNombreLab"></span></p>
+        <p><strong>Correo:</strong> <span id="infoCorreoLab"></span></p>
+        <p><strong>Carrera:</strong> <span id="infoCarreraLab"></span></p>
+        <p><strong>Documento:</strong> <span id="infoDocumentoLab"></span></p>
+      </div>
+
+      <form id="formLab" class="formulario">
+        <label>Sala de Laboratorio:
+          <select required>
+            <option value="">Cargando...</option>
+          </select>
+        </label>
+
+        <label>Fecha de reserva:
+          <input type="date" required>
+        </label>
+
+        <label>Hora de inicio:
+          <input type="time" required>
+        </label>
+
+        <label>Hora de entrega:
+          <input type="time" required>
+        </label>
+
+        <!-- 🔥 NUEVO: Estudiantes adicionales -->
+        <label>¿Participan más estudiantes?
+          <select id="masEstudiantes">
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+          </select>
+        </label>
+
+        <div id="listaEstudiantes" hidden>
+          <h4>Registrar estudiantes adicionales</h4>
+
+          <div id="estudiantesContainer"></div>
+
+          <button type="button" id="btnAgregarEstudiante" class="btn-agregar">
+            + Agregar estudiante
+          </button>
+        </div>
+
+        <button type="submit" class="btn-form">Enviar Reserva</button>
+      </form>
+    </section>
+
+    <!-- ================= FORMULARIO PRODUCTOS ================= -->
+    <section id="reservaProductos" class="formulario-container" hidden>
+      <h3>Reserva de Productos</h3>
+      
+      <!-- Información del usuario (solo lectura) -->
+      <div class="info-usuario">
+        <h4>Tu información:</h4>
+        <p><strong>Nombre:</strong> <span id="infoNombreProd"></span></p>
+        <p><strong>Correo:</strong> <span id="infoCorreoProd"></span></p>
+        <p><strong>Carrera:</strong> <span id="infoCarreraLab"></span></p>
+        <p><strong>Documento:</strong> <span id="infoDocumentoProd"></span></p>
+      </div>
+
+      <form id="formProd" class="formulario">
+        <label>Fecha de uso:
+          <input type="date" required>
+        </label>
+
+        <label>Hora de inicio:
+          <input type="time" required>
+        </label>
+
+        <label>Hora de entrega:
+          <input type="time" required>
+        </label>
+
+        <div id="productosContainer">
+          <div class="producto-item">
+            <label>Producto:
+              <select id="producto" required>
+                <option value="">Cargando...</option>
+              </select>
+            </label>
+
+            <label>Cantidad:
+              <input type="number" min="1" value="1" required>
+            </label>
+          </div>
+        </div>
+
+        <button type="button" id="btnAgregarProducto">+ Agregar otro producto</button>
+
+        <button type="submit" class="btn-form">Enviar Solicitud</button>
+      </form>
+    </section>
+
+    <section id="contacto" class="info">
+      <h3>Contacto</h3>
+      <p>
+        Para soporte escribe a: <strong>soporte.labpilot@upc.edu.co</strong>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Universidad Piloto de Colombia – Sistema LabPilot</p>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/estudiantes.js"></script>
+</body>
+
+</html>

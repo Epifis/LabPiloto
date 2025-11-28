@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administración | LabPilot</title>
+  <link rel="stylesheet" href="css/admin.css" />
+
+  <script type="module">
+    import { verificarAutenticacion, iniciarVerificacionContinua } from './js/modules/auth.js';
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = await verificarAutenticacion();
+        if (user) {
+            // Ocultar "Agregar Admins" si no es superAdmin
+            if (user.rol !== 'superAdmin') {
+                const linkRegistrar = document.getElementById('link-registrar-admin');
+                if (linkRegistrar) linkRegistrar.style.display = 'none';
+            }
+            iniciarVerificacionContinua();
+        }
+    });
+</script>
+</head>
+<body>
+  
+  <div class="layout">
+   <!-- ======= BARRA LATERAL ======= -->
+    <aside class="sidebar">
+      <h2>LabPilot</h2>
+      <nav>
+        <button class="menu-btn" id="btnReservas">📅 Reservas</button><!--'Pendiente', 'Confirmada', 'Cancelada', 'Completada', 'Rechazada'-->
+        <button class="menu-btn" id="btnPrestamos">📅 Préstamos</button><!--'Pendiente', 'Aprobado', 'Rechazado', 'Prestado', 'Devuelto', 'Atrasado'-->
+        <button class="menu-btn" id="btnReportes">📊 Reportes</button>
+        <button class="menu-btn" id="btnAdminCursos">📊 Administrar Cursos</button><!-- programarlos o quitarlos o actualizarlos-->
+        <button class="menu-btn" id="btnGestor">📊 Gestor de usuarios</button><!--SuperAdmin-->
+        <button class="menu-btn" id="btnInventario">📦 Inventario</button>
+        <button class="menu-btn" id="btnLaboratorios">🧪 Laboratorios</button>
+        <a id="link-registrar-admin" href="registrar-admin.html">Agregar Admins</a>
+      </nav>
+     <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+
+    </aside>
+
+    <!-- ======= CONTENIDO PRINCIPAL ======= -->
+    <main class="main-content">
+      <h1>Panel de Administración</h1>
+      <p>
+        Bienvenido al sistema de gestión de reservas y préstamos de la
+        <strong>Universidad Piloto de Colombia</strong>.
+      </p>
+
+      <div class="info-box">
+        <h2>Uso del panel</h2>
+        <p>
+          Desde este espacio podrás supervisar las reservas de laboratorios, 
+          gestionar los préstamos de equipos y generar reportes detallados 
+          sobre la actividad del sistema. 
+        </p>
+        <p>
+          Recuerda aprobar, rechazar o actualizar cada solicitud con cuidado, 
+          garantizando la correcta trazabilidad de los recursos institucionales.
+        </p>
+      </div>
+
+      <section id="contenido-dinamico"></section>
+    </main>
+  </div>
+
+  <footer>
+    <p>© 2025 Universidad Piloto de Colombia – Sistema LabPilot</p>
+  </footer>
+  <script src="js/config.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

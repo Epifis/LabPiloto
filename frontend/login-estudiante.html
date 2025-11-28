@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>Login - LabPilot UPC</title>
+    <link rel="stylesheet" href="css/login-estudiante.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>LabPilot</h2>
+            <nav>
+                <a href="registrar-estudiante.html" class="menu-btn">🎓 Registrarse como Usuario</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <h1>Login</h1>
+            
+            <div class="container">
+                <h2>🔐 Acceso al Sistema</h2>
+                <p class="subtitle">LabPilot UPC - Sistema de Gestión de Laboratorios</p>
+                
+                <div class="info-box">
+                    ℹ️ Ingresa con tu correo y contraseña. Si tienes MFA habilitado, te enviaremos un código de verificación.
+                </div>
+                
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="correo">Correo electrónico *</label>
+                        <input type="email" id="correo" placeholder="tucorreo@ejemplo.com" required autofocus>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Contraseña *</label>
+                        <input type="password" id="password" placeholder="Tu contraseña" required>
+                    </div>
+                    
+                    <button type="submit" id="btnSubmit">Iniciar Sesión</button>
+                    
+                    <div class="form-footer">
+                        <p class="register-link">
+                            ¿No tienes cuenta? 
+                            <a href="registrar-estudiante.html">Regístrate aquí</a>
+                        </p>
+                    </div>
+                    
+                    <div class="loading" id="loading">
+                        ⏳ Iniciando sesión...
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                    <div class="success-message" id="successMessage"></div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- ✅ Cargar configuración PRIMERO -->
+    <script src="js/config.js"></script>
+    
+    <!-- ✅ Luego cargar el script de login -->
+    <script src="js/login.js"></script>
+</body>
+</html>

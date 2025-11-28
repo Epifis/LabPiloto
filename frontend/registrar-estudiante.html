@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <title>Registro Estudiante - LabPilot UPC</title>
+    <link rel="stylesheet" href="css/registrar-estudiante.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>LabPilot</h2>
+            <nav>
+                <a href="login-estudiante.html" class="menu-btn">← Volver al Login</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <h1>Registro</h1>
+            
+            <div class="container">
+                <h2>🎓 Crear Cuenta</h2>
+                <p class="subtitle">LabPilot UPC - Sistema de Gestión de Laboratorios</p>
+                
+                <div class="info-box">
+                    ℹ️ Completa todos los campos para crear tu cuenta de usuario. 
+                    Recibirás un código de verificación por correo electrónico.
+                </div>
+                
+                <form id="formEstudiante">
+                    <!-- Paso 1: Información básica -->
+                    <div id="paso1">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nombre">Nombres *</label>
+                                <input type="text" id="nombre" placeholder="Ej: María Fernanda" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="apellido">Apellidos *</label>
+                                <input type="text" id="apellido" placeholder="Ej: Rodríguez García" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="correo">Correo electrónico *</label>
+                            <input type="email" id="correo" placeholder="tucorreo@ejemplo.com" required>
+                            <small>Puedes usar tu correo institucional UPC o correo personal</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="documento">Número de Documento *</label>
+                            <input type="text" id="documento" placeholder="Ej: 123456789" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="programa">Programa Académico *</label>
+                            <select id="programa" required>
+                                <option value="">Selecciona tu programa</option>
+                                <option value="Ingeniería de Sistemas">Ingeniería de Sistemas</option>
+                                <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                                <option value="Ingeniería Electrónica">Ingeniería Electrónica</option>
+                                <option value="Administración de Empresas">Administración de Empresas</option>
+                                <option value="Contaduría Pública">Contaduría Pública</option>
+                                <option value="Psicología">Psicología</option>
+                                <option value="otro">Otro programa</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="otroProgramaGroup" style="display: none;">
+                            <label for="otroPrograma">Especifica tu programa *</label>
+                            <input type="text" id="otroPrograma" placeholder="Escribe tu programa académico">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="password">Contraseña *</label>
+                                <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirmar contraseña *</label>
+                                <input type="password" id="confirmPassword" placeholder="Repite tu contraseña" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="aceptaTerminos" required>
+                                Acepto los <a href="#" onclick="mostrarTerminos()">términos y condiciones</a> *
+                            </label>
+                        </div>
+                        
+                        <div class="form-footer">
+                            <button type="button" id="btnSiguiente" class="btn-primary">Siguiente →</button>
+                            <p class="login-link">
+                                ¿Ya tienes cuenta? <a href="login-estudiante.html">Inicia sesión aquí</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: Verificación MFA -->
+                    <div id="paso2" style="display: none;">
+                        <div class="info-box">
+                            📧 Hemos enviado un código de verificación a tu correo electrónico.
+                            Ingresa el código de 6 dígitos para completar tu registro.
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="codigoMfa">Código de Verificación *</label>
+                            <input type="text" id="codigoMfa" placeholder="Ej: 123456" maxlength="6" required>
+                            <small>Revisa tu bandeja de entrada y spam</small>
+                        </div>
+
+                        <div class="form-footer">
+                            <button type="button" id="btnVerificar" class="btn-primary">Verificar Código</button>
+                            <button type="button" id="btnReenviar" class="btn-secondary">↻ Reenviar Código</button>
+                            <button type="button" id="btnVolver" class="btn-secondary">← Volver</button>
+                        </div>
+                    </div>
+                    
+                    <div class="loading" id="loading">
+                        ⏳ Procesando...
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                    <div class="success-message" id="successMessage"></div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Términos y Condiciones -->
+    <div id="modalTerminos" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Términos y Condiciones</h2>
+            <div class="terminos-content">
+                <h3>1. Aceptación de Términos</h3>
+                <p>Al registrarte en LabPilot, aceptas cumplir con estos términos y condiciones...</p>
+                
+                <h3>2. Uso Responsable</h3>
+                <p>Te comprometes a utilizar los laboratorios y equipos de manera responsable...</p>
+                
+                <h3>3. Privacidad</h3>
+                <p>Respetamos tu privacidad y protegemos tus datos personales...</p>
+                
+                <h3>4. Responsabilidades</h3>
+                <p>Eres responsable del uso que hagas de tu cuenta y de los recursos del sistema...</p>
+            </div>
+            <button class="btn-aceptar-terminos" onclick="cerrarTerminos()">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Configuración -->
+    <script src="js/config.js"></script>
+    
+    <!-- Script de registro -->
+    <script src="js/registrar-estudiante.js"></script>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .terminos-content {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .terminos-content h3 {
+            color: var(--upc-blue);
+            margin: 15px 0 10px 0;
+        }
+
+        .btn-aceptar-terminos {
+            background: var(--upc-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--upc-blue) 0%, var(--upc-dark-blue) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .form-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .form-footer {
+                flex-direction: column;
+            }
+            
+            .btn-secondary {
+                width: 100%;
+                margin: 2px 0;
+            }
+        }
+    </style>
+
+    <script>
+        function mostrarTerminos() {
+            document.getElementById('modalTerminos').style.display = 'block';
+        }
+
+        function cerrarTerminos() {
+            document.getElementById('modalTerminos').style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic en la X
+        document.querySelector('.close').addEventListener('click', cerrarTerminos);
+
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('modalTerminos');
+            if (event.target === modal) {
+                cerrarTerminos();
+            }
+        });
+    </script>
+</body>
+</html>
