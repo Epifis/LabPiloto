@@ -1,0 +1,56 @@
+# =========================
+# 💡 CONFIGURACIÓN GENERAL
+# =========================
+spring.application.name=LabPilot-upc
+app.base.url=https://labpiloto.com
+
+# =========================
+# 💾 BASE DE DATOS POSTGRESQL
+# =========================
+spring.datasource.url=jdbc:postgresql://localhost:5432/laboratorio_universidad
+spring.datasource.username=postgres
+spring.datasource.password=1234
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# =========================
+# ⚙️ JPA / HIBERNATE
+# =========================
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# =========================
+# 🔒 SPRING SECURITY & JWT
+# =========================
+# NOTA: Spring Security está habilitado, no excluir
+jwt.secret=mySuperSecretKeyForJWTGenerationInProductionChangeThisInProduction
+jwt.expiration=86400000
+
+# =========================
+# 📧 CONFIGURACIÓN DE CORREO
+# =========================
+admin.validation.email=j831886@gmail.com
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=j831886@gmail.com
+spring.mail.password=jkduxubqkfjuilvj
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.properties.mail.smtp.connectiontimeout=5000
+spring.mail.properties.mail.smtp.timeout=5000
+spring.mail.properties.mail.smtp.writetimeout=5000
+
+# =========================
+# 📚 DOCUMENTACIÓN API
+# =========================
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.enabled=true
+
+# =========================
+# 🐛 LOGGING
+# =========================
+logging.level.org.springframework.security=DEBUG
+logging.level.edu.upc.labpilot=DEBUG
