@@ -66,6 +66,7 @@ public class SecurityConfig {
                 // CONTRATOS - RUTAS ESPECÍFICAS PRIMERO
                 .requestMatchers("/api/admins/solicitar/**").permitAll()
                 .requestMatchers("/api/admins/aprobar/**").permitAll()
+                .requestMatchers("/api/admins/rechazar/**").permitAll()
                 .requestMatchers("/api/admins/firmar-contrato/**").permitAll()
                 .requestMatchers("/api/contrato/firmar-estudiante/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/usuarios/firmar-contrato/**").permitAll()

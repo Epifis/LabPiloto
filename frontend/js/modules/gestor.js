@@ -5,7 +5,6 @@ export async function reporteUsuarios() {
         cerrarModal();
         await new Promise(res => setTimeout(res, 80));
 
-        // ✅ CORREGIDO
         const usuarios = await api.get(API_ENDPOINTS.usuarios.listar);
 
         const html = `
@@ -26,7 +25,6 @@ export async function reporteUsuarios() {
                                 <th>Programa</th>
                                 <th>Documento</th>
                                 <th>Estado</th>
-                                <th>Conexión</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -39,7 +37,6 @@ export async function reporteUsuarios() {
                                     <td>${u.programa || '-'}</td>
                                     <td>${u.documento || '-'}</td>
                                     <td>${u.activo ? '🟢 Activo' : '🔴 Inactivo'}</td>
-                                    <td>${u.online ? '🟢 Online' : '⚫ Offline'}</td>
                                     <td>
                                         <button onclick="editarUsuario(${u.id})">Editar</button>
                                         <button onclick="cambiarEstadoUsuario(${u.id})">
@@ -51,6 +48,20 @@ export async function reporteUsuarios() {
                         </tbody>
                     </table>
                 </div>
+
+                <h3>Agregar nuevo usuario</h3>
+                <input type="text" id="usuarioNombre" placeholder="Nombre">
+                <input type="text" id="usuarioApellido" placeholder="Apellido">
+                <input type="text" id="usuarioCorreo" placeholder="Correo">
+                <input type="password" id="usuarioPassword" placeholder="Contraseña">
+                <select id="usuarioRol">
+                    <option value="">Seleccione un rol</option>
+                    <option value="ESTUDIANTE">Estudiante</option>
+                    <option value="PROFESOR">Profesor</option>
+                </select>
+                <input type="text" id="usuarioPrograma" placeholder="Programa (opcional)">
+                <input type="text" id="usuarioDocumento" placeholder="Documento (opcional)">
+                <button onclick="agregarUsuario()">Agregar</button>
             </div>
         </div>`;
 
@@ -63,7 +74,6 @@ export async function reporteUsuarios() {
     }
 }
 
-// ✅ CORREGIDO
 window.cambiarEstadoUsuario = async function (id) {
     try {
         const usuario = await api.get(API_ENDPOINTS.usuarios.obtener(id));
@@ -84,7 +94,6 @@ window.cambiarEstadoUsuario = async function (id) {
     }
 };
 
-// ✅ CORREGIDO
 window.editarUsuario = async function (id) {
     try {
         const usuario = await api.get(API_ENDPOINTS.usuarios.obtener(id));
@@ -122,7 +131,6 @@ window.editarUsuario = async function (id) {
     }
 };
 
-// ✅ CORREGIDO
 window.agregarUsuario = async function () {
     const nombre = document.getElementById('usuarioNombre').value.trim();
     const apellido = document.getElementById('usuarioApellido').value.trim();
@@ -141,18 +149,35 @@ window.agregarUsuario = async function () {
     }
 
     try {
-        await api.post(API_ENDPOINTS.usuarios.base, {
+        // Usar el endpoint correcto según el rol
+        let endpoint;
+        let payload = {
             nombre,
             apellido,
             correo,
-            password,
-            rol,
-            programa: programa || null,
-            documento: documento || null,
-            activo: true,
-            online: false
-        });
+            password
+        };
 
+        if (rol === 'PROFESOR') {
+            endpoint = API_ENDPOINTS.auth.profesor.registro;
+            payload.programa = programa || null;
+            payload.documento = documento || null;
+        } else if (rol === 'ESTUDIANTE') {
+            endpoint = API_ENDPOINTS.auth.estudiante.registro;
+            payload.programa = programa || null;
+            payload.documento = documento || null;
+        } else if (rol === 'ADMIN') {
+            endpoint = API_ENDPOINTS.admins.solicitar;
+        } else {
+            return alert("Rol no válido. Seleccione Estudiante, Profesor o Admin.");
+        }
+
+        console.log('Endpoint a usar:', endpoint);
+        console.log('Payload:', payload);
+
+        await api.post(endpoint, payload);
+
+        alert("Usuario agregado exitosamente");
         cerrarModal();
         reporteUsuarios();
 

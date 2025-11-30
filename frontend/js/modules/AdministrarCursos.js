@@ -2,7 +2,6 @@ import { cerrarModal, formatearFecha, setupFiltroTabla } from './ui.js';
 
 async function mostrarAdminCursos() {
     try {
-        // ✅ CORREGIDO: Usar .listar en vez de .base
         const [profesores, cursos, laboratorios, reservasExistentes] = await Promise.all([
             api.get(API_ENDPOINTS.usuarios.listar).then(users => 
                 users.filter(u => u.rol === 'profesor' || u.rol === 'administrador')
@@ -14,11 +13,52 @@ async function mostrarAdminCursos() {
 
         let html = `
             <div class="modal">
-                <div class="modal-content" style="max-width: 1200px;">
+                <div class="modal-content" style="max-width: 1400px;">
                     <span class="close" onclick="cerrarModal()">&times;</span>
-                    <h2>📚 Administrar Cursos y Clases</h2>
+                    <h2>Administrar Cursos y Clases</h2>
                     
                     <div class="admin-cursos-container">
+                        <!-- Sección de Gestión de Cursos -->
+                        <div class="form-section">
+                            <h3>Gestión de Cursos (Materias)</h3>
+                            
+                            <input type="text" id="filtroCursos" placeholder="Filtrar por NRC o nombre..." class="input-filtro">
+                            
+                            <div class="tabla-container" style="max-height: 300px; overflow-y: auto;">
+                                <table id="tablaCursos">
+                                    <thead>
+                                        <tr>
+                                            <th>NRC</th>
+                                            <th>Nombre del Curso</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${cursos.map(c => `
+                                            <tr id="curso-${c.nrc}">
+                                                <td>${c.nrc}</td>
+                                                <td>${c.nombre}</td>
+                                                <td>${c.fechaCreacion ? new Date(c.fechaCreacion).toLocaleDateString('es-CO') : '-'}</td>
+                                                <td>
+                                                    <button onclick="editarCurso('${c.nrc}')">✏️ Editar</button>
+                                                    <button onclick="eliminarCurso('${c.nrc}')" class="btn-cancelar">🗑️ Eliminar</button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h4>Agregar nuevo curso</h4>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <input type="text" id="cursoNrc" placeholder="NRC (Código único)" style="flex: 1;">
+                                <input type="text" id="cursoNombre" placeholder="Nombre del curso" style="flex: 2;">
+                                <button onclick="agregarCurso()">Agregar Curso</button>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Programar Clases -->
                         <div class="form-section">
                             <h3>➕ Programar Clase Recurrente</h3>
                             <form id="formClaseRecurrente" class="formulario">
@@ -161,12 +201,144 @@ async function mostrarAdminCursos() {
         
         document.getElementById('formClaseRecurrente').addEventListener('submit', programarClasesRecurrentes);
         setupFiltroTabla("filtroClases", "tablaClases");
+        setupFiltroTabla("filtroCursos", "tablaCursos");
         
     } catch (error) {
         console.error('Error:', error);
         alert('Error al cargar datos para administrar cursos');
     }
 }
+
+// ================ GESTIÓN DE CURSOS ================
+
+window.editarCurso = async function (nrc) {
+    try {
+        const curso = await api.get(API_ENDPOINTS.cursos.obtenerPorNrc(nrc));
+
+        const nuevoNombre = prompt("Nuevo nombre del curso:", curso.nombre);
+
+        if (!nuevoNombre || nuevoNombre.trim() === '') {
+            return alert("El nombre del curso es obligatorio");
+        }
+
+        const payload = {
+            nrc: curso.nrc,
+            nombre: nuevoNombre.trim()
+        };
+
+        const actualizado = await api.put(API_ENDPOINTS.cursos.actualizar(nrc), payload);
+
+        const fila = document.querySelector(`#curso-${nrc}`);
+        if (fila) {
+            fila.children[1].textContent = actualizado.nombre;
+        }
+
+        // Actualizar también el select de cursos
+        const selectCurso = document.getElementById('selectCurso');
+        if (selectCurso) {
+            const option = selectCurso.querySelector(`option[value="${nrc}"]`);
+            if (option) {
+                option.textContent = `${nrc} - ${actualizado.nombre}`;
+            }
+        }
+
+        alert('✅ Curso actualizado exitosamente');
+
+    } catch (e) {
+        console.error(e);
+        alert("Error al editar curso");
+    }
+};
+
+window.eliminarCurso = async function (nrc) {
+    if (!confirm(`¿Estás seguro de eliminar el curso ${nrc}?\n\nNOTA: Si hay clases programadas con este curso, también se eliminarán.`)) {
+        return;
+    }
+
+    try {
+        await api.delete(API_ENDPOINTS.cursos.eliminar(nrc));
+        
+        const fila = document.querySelector(`#curso-${nrc}`);
+        if (fila) {
+            fila.remove();
+        }
+
+        // Actualizar también el select de cursos
+        const selectCurso = document.getElementById('selectCurso');
+        if (selectCurso) {
+            const option = selectCurso.querySelector(`option[value="${nrc}"]`);
+            if (option) {
+                option.remove();
+            }
+        }
+
+        alert('✅ Curso eliminado exitosamente');
+
+    } catch (e) {
+        console.error(e);
+        alert("Error al eliminar curso: " + (e.message || "Puede que haya clases asociadas a este curso"));
+    }
+};
+
+window.agregarCurso = async function () {
+    const nrc = document.getElementById('cursoNrc').value.trim();
+    const nombre = document.getElementById('cursoNombre').value.trim();
+
+    if (!nrc || !nombre) {
+        return alert("Por favor complete todos los campos (NRC y nombre del curso)");
+    }
+
+    if (nrc.length > 20) {
+        return alert("El NRC no puede tener más de 20 caracteres");
+    }
+
+    if (nombre.length > 200) {
+        return alert("El nombre del curso no puede tener más de 200 caracteres");
+    }
+
+    try {
+        const nuevoCurso = await api.post(API_ENDPOINTS.cursos.crear, {
+            nrc,
+            nombre
+        });
+
+        // Agregar a la tabla
+        const tbody = document.querySelector('#tablaCursos tbody');
+        const nuevaFila = document.createElement('tr');
+        nuevaFila.id = `curso-${nrc}`;
+        nuevaFila.innerHTML = `
+            <td>${nrc}</td>
+            <td>${nombre}</td>
+            <td>${new Date().toLocaleDateString('es-CO')}</td>
+            <td>
+                <button onclick="editarCurso('${nrc}')">✏️ Editar</button>
+                <button onclick="eliminarCurso('${nrc}')" class="btn-cancelar">🗑️ Eliminar</button>
+            </td>
+        `;
+        tbody.appendChild(nuevaFila);
+
+        // Agregar al select de cursos
+        const selectCurso = document.getElementById('selectCurso');
+        if (selectCurso) {
+            const nuevaOpcion = document.createElement('option');
+            nuevaOpcion.value = nrc;
+            nuevaOpcion.textContent = `${nrc} - ${nombre}`;
+            selectCurso.appendChild(nuevaOpcion);
+        }
+
+        // Limpiar campos
+        document.getElementById('cursoNrc').value = '';
+        document.getElementById('cursoNombre').value = '';
+
+        alert('✅ Curso agregado exitosamente');
+
+    } catch (e) {
+        console.error(e);
+        alert("Error agregando curso: " + (e.message || "Verifica que el NRC no esté duplicado."));
+    }
+};
+
+// ================ PROGRAMACIÓN DE CLASES ================
 
 async function programarClasesRecurrentes(e) {
     e.preventDefault();
@@ -206,7 +378,6 @@ async function programarClasesRecurrentes(e) {
             return;
         }
 
-        // ✅ CORREGIDO: Usar API_ENDPOINTS.reservas.recurrentes
         const resultado = await api.post(API_ENDPOINTS.reservas.recurrentes, datosClase);
         
         alert(`✅ ${resultado.totalReservas} clases programadas exitosamente`);
@@ -327,7 +498,6 @@ window.actualizarCapacidad = function(select) {
     }
 }
 
-// ✅ CORREGIDO
 window.cancelarClase = async (id) => {
     if (confirm('¿Estás seguro de cancelar esta clase?')) {
         try {

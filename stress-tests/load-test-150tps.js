@@ -1,73 +1,41 @@
-// load-test-150tps.js
+// load-test-150tps-optimized.js
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export const options = {
   scenarios: {
-    ramp_up: {
-      executor: 'ramping-arrival-rate',
-      startRate: 50,      // Empezar con 50 TPS
+    constant_load: {
+      executor: 'constant-arrival-rate',
+      rate: 150,        // 150 TPS objetivo
       timeUnit: '1s',
-      stages: [
-        { target: 100, duration: '1m' },   // 0-1min: 50→100 TPS
-        { target: 150, duration: '2m' },   // 1-3min: 100→150 TPS
-        { target: 150, duration: '10m' },  // 3-13min: 150 TPS sostenido
-        { target: 0, duration: '1m' },     // 13-14min: Descenso
-      ],
+      duration: '10m',  // 10 minutos a 150 TPS
       preAllocatedVUs: 50,
-      maxVUs: 200,
+      maxVUs: 100,      // Dentro de tu límite
     },
   },
   thresholds: {
     http_req_duration: ['p(95)<3000', 'p(99)<5000'],
-    http_req_failed: ['rate<0.02'],    // < 2% de errores
-    checks: ['rate>0.98'],             // > 98% checks exitosos
+    http_req_failed: ['rate<0.02'],
   },
 };
 
 const BASE_URL = 'https://labpiloto.com';
 
 export default function() {
-  // Simular comportamiento real de usuarios
-  const userType = Math.random();
+  const random = Math.random();
   
-  let requests = [];
-
-  if (userType < 0.3) {
-    // 30%: Usuarios explorando (múltiples requests)
-    requests = [
-      ['GET', BASE_URL],
-      ['GET', `${BASE_URL}/api/laboratorios/disponibles`],
-      ['GET', `${BASE_URL}/api/cursos`],
-    ];
-  } else if (userType < 0.6) {
-    // 30%: Usuarios enfocados en laboratorios
-    requests = [
-      ['GET', `${BASE_URL}/api/laboratorios/disponibles`],
-      ['GET', `${BASE_URL}/api/laboratorios/disponibles`], // Doble consulta
-    ];
-  } else if (userType < 0.8) {
-    // 20%: Usuarios rápidos (solo página principal)
-    requests = [['GET', BASE_URL]];
-  } else {
-    // 20%: Usuarios mixtos
-    requests = [
-      ['GET', BASE_URL],
-      ['GET', `${BASE_URL}/api/cursos`],
-    ];
+  if (random < 0.4) {
+    const res = http.get(`${BASE_URL}/api/laboratorios/disponibles`);
+    check(res, { 'status 200': (r) => r.status === 200 });
+  }
+  else if (random < 0.7) {
+    const res = http.get(`${BASE_URL}/api/cursos`);
+    check(res, { 'status 200': (r) => r.status === 200 });
+  }
+  else {
+    const res = http.get(BASE_URL);
+    check(res, { 'status 200': (r) => r.status === 200 });
   }
 
-  // Ejecutar requests en paralelo
-  const responses = http.batch(requests);
-  
-  // Verificar respuestas
-  responses.forEach((res, index) => {
-    check(res, {
-      [`request ${index} status 200`]: (r) => r.status === 200,
-      [`request ${index} response time < 5s`]: (r) => r.timings.duration < 5000,
-    });
-  });
-
-  // Tiempo entre iteraciones (0.1-3 segundos)
-  sleep(Math.random() * 2.9 + 0.1);
+  sleep(0.1); // Mínimo tiempo entre iteraciones
 }

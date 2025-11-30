@@ -54,6 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // CONTRATOS Y ADMIN
         "/api/admins/solicitar",
         "/api/admins/aprobar",
+	"/api/admins/rechazar",
         "/api/admins/firmar-contrato",  // ✅ AGREGADO - Esta era la que faltaba!
         "/api/contrato",
 

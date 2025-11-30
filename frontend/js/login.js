@@ -397,5 +397,4 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('ℹ️ No hay sesión activa, mostrando formulario de login');
   }
   
-  console.log('═══════════════════════════════════════');
 });

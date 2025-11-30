@@ -288,7 +288,7 @@ window.authHelper = {
     return !!localStorage.getItem('authToken') && !!localStorage.getItem('userData');
   },
   
-  // ✅ NUEVA FUNCIÓN: Verificar si el usuario es admin
+  //Verificar si el usuario es admin
   esAdmin(rol) {
     if (!rol) return false;
     const rolNormalizado = String(rol).toLowerCase().trim();
@@ -301,7 +301,33 @@ window.authHelper = {
 
 // 5. PROTECCIÓN DE RUTAS - CORREGIDA
 const currentPage = window.location.pathname.split('/').pop();
-const publicPages = ['login-estudiante.html', 'login-profesor.html', 'login-admin.html'];
+const publicPages = [
+    // Login
+    'login-estudiante.html', 
+    'login-profesor.html', 
+    'login-admin.html',
+    
+    // Registro
+    'registrar-estudiante.html',
+    'registrar-profesor.html',
+    'registrar-admin.html',
+    
+    // Landing/Home
+    'index.html',
+    'home.html',
+    'landing.html',
+    
+    // Contratos (se acceden por link en email)
+    'firmar-contrato.html',
+    'contrato.html',
+    
+    // Verificación
+    'verificar-correo.html',
+    'verificar-codigo.html'
+];
+
+console.log('Página actual:', currentPage);
+console.log('¿Es página pública?', publicPages.includes(currentPage));
 
 // Si la página actual NO está en la lista de páginas públicas, requiere autenticación
 if (!publicPages.includes(currentPage)) {
@@ -309,26 +335,25 @@ if (!publicPages.includes(currentPage)) {
     const userData = localStorage.getItem('userData');
     
     if (!token || !userData) {
-        console.log('🚫 No autenticado, redirigiendo a login...');
+        console.log('No autenticado, redirigiendo a login...');
         window.location.href = 'login-estudiante.html';
     } else {
         const user = JSON.parse(userData);
-        console.log('✅ Usuario autenticado:', user);
-        console.log('🎭 Rol del usuario:', user.rol);
+        console.log('Usuario autenticado:', user);
+        console.log('Rol del usuario:', user.rol);
         
-        // ✅ VERIFICACIÓN DE ROLES PARA ADMIN.HTML - CORREGIDA
         const adminPages = ['admin.html', 'registrar-admin.html'];
         if (adminPages.includes(currentPage)) {
-            console.log('🔐 Verificando acceso a página de administración...');
-            console.log('🎭 Rol recibido:', user.rol);
+            console.log('Verificando acceso a página de administración...');
+            console.log('Rol recibido:', user.rol);
             
             // Usar la función helper para verificar si es admin
             if (!authHelper.esAdmin(user.rol)) {
-                console.log('❌ Usuario NO es admin, redirigiendo a index...');
-                console.log('   Rol actual:', user.rol);
+                console.log('Usuario NO es admin, redirigiendo a index...');
+                console.log('Rol actual:', user.rol);
                 window.location.href = 'index.html';
             } else {
-                console.log('✅ Usuario es admin, acceso permitido');
+                console.log('Usuario es admin, acceso permitido');
             }
         }
     }
