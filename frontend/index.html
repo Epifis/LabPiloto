@@ -160,11 +160,32 @@ document.addEventListener('DOMContentLoaded', function() {
     </section>
 
     <section id="contacto" class="info">
-      <h3>Contacto</h3>
-      <p>
-        Para soporte escribe a: <strong>soporte.labpilot@upc.edu.co</strong>
-      </p>
-    </section>
+  <h3>Contacto</h3>
+  <form id="formContacto">
+    <label>Nombre:
+      <input type="text" id="contactNombre" required>
+    </label>
+
+    <label>Correo:
+      <input type="email" id="contactCorreo" required>
+    </label>
+
+    <label>Asunto:
+      <input type="text" id="contactAsunto" placeholder="Soporte LabPilot">
+    </label>
+
+    <label>Mensaje:
+      <textarea id="contactMensaje" required></textarea>
+    </label>
+
+    <div style="margin-top:8px;">
+      <button type="submit" class="btn-form">Enviar mensaje</button>
+      <!-- opcional fallback -->
+    </div>
+
+    <div id="contactStatus" style="display:none; margin-top:10px;"></div>
+  </form>
+</section>
   </main>
 
   <footer>

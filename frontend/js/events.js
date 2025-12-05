@@ -1,4 +1,4 @@
-// events.js - Version con validaciones de fecha y hora
+// events.js - Versi贸n con validaciones de fecha y hora
 console.log('Iniciando events.js...');
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inputsFecha.forEach(input => {
       input.setAttribute('min', fechaMinima);
       
-      // Validacion adicional al cambiar la fecha
+      // Validaci贸n adicional al cambiar la fecha
       input.addEventListener('change', function() {
         if (this.value < fechaMinima) {
           alert('No puedes seleccionar una fecha anterior a hoy');
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     console.log('Datos del usuario cargados:', userData);
 
-    // Mostrar informacion del usuario en la p谩gina principal
+    // Mostrar informaci贸n del usuario en la p谩gina principal
     const inicioSection = document.getElementById('inicio');
     if (inicioSection) {
       const titulo = inicioSection.querySelector('h2');
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         titulo.innerHTML = `Bienvenido, <span style="color: #2c5aa0;">${userData.nombre || ''} ${userData.apellido || ''}</span>`;
       }
 
-      // Agregar informacion del usuario
+      // Agregar informaci贸n del usuario
       const infoUsuario = document.createElement('div');
       infoUsuario.style.marginTop = '15px';
       infoUsuario.style.padding = '10px';
@@ -135,12 +135,12 @@ document.addEventListener('DOMContentLoaded', function () {
       infoUsuario.style.borderRadius = '5px';
       infoUsuario.style.fontSize = '14px';
       infoUsuario.innerHTML = `
-        <strong>Informacion de tu cuenta:</strong><br>
-         ${userData.correo || ''}<br>
-         ${userData.programa || 'Estudiante'} | ${userData.documento || ''}
+        <strong>Informaci贸n de tu cuenta:</strong><br>
+        ${userData.correo || ''}<br>
+        ${userData.programa || 'Estudiante'} | ${userData.documento || ''}
       `;
 
-      // Insertar despues del titulo
+      // Insertar despu茅s del t铆tulo
       titulo.parentNode.insertBefore(infoUsuario, titulo.nextSibling);
     }
   }
@@ -152,20 +152,20 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    // Mostrar informacion del usuario en el panel
+    // Mostrar informaci贸n del usuario en el panel
     document.getElementById('infoNombreLab').textContent = `${userData.nombre || ''} ${userData.apellido || ''}`.trim();
     document.getElementById('infoCorreoLab').textContent = userData.correo || '';
     document.getElementById('infoCarreraLab').textContent = userData.programa || '';
     document.getElementById('infoDocumentoLab').textContent = userData.documento || '';
 
-    console.log('Informacion de usuario mostrada en laboratorio');
+    console.log('Informaci贸n de usuario mostrada en laboratorio');
   }
 
   function autocompletarFormularioProductos() {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData) return;
 
-    // Mostrar informacion del usuario en el panel
+    // Mostrar informaci贸n del usuario en el panel
     document.getElementById('infoNombreProd').textContent = `${userData.nombre || ''} ${userData.apellido || ''}`.trim();
     document.getElementById('infoCorreoProd').textContent = userData.correo || '';
     document.getElementById('infoDocumentoProd').textContent = userData.documento || '';
@@ -217,10 +217,10 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       console.log('Enviando reserva de laboratorio...');
 
-      // Verificar autenticacion
+      // Verificar autenticaci贸n
       const userData = JSON.parse(localStorage.getItem('userData'));
       if (!userData || !userData.id) {
-        alert('Debe iniciar sesion para realizar una reserva');
+        alert('Debe iniciar sesi贸n para realizar una reserva');
         window.location.href = 'login-estudiante.html';
         return;
       }
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const horaInicio = formLab.querySelectorAll('input[type="time"]')[0].value;
       const horaFin = formLab.querySelectorAll('input[type="time"]')[1].value;
 
-      // Validaciones basicas
+      // Validaciones b谩sicas
       if (!labId) {
         alert('Por favor seleccione un laboratorio');
         return;
@@ -312,9 +312,9 @@ document.addEventListener('DOMContentLoaded', function () {
   if (formProd) {
     formProd.addEventListener('submit', async function (e) {
       e.preventDefault();
-      console.log('Enviando solicitud de pr茅stamo...');
+      console.log('Enviando solicitud de prestamo...');
 
-      // Verificar autenticacion
+      // Verificar autenticaci贸n
       const userData = JSON.parse(localStorage.getItem('userData'));
       if (!userData || !userData.id) {
         alert('Debe iniciar sesion para solicitar un prestamo');
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log('Prestamos a crear:', JSON.stringify(prestamos, null, 2));
 
-        // Enviar cada prestamo individualmente
+        // Enviar cada pr茅stamo individualmente
         const promesas = prestamos.map((prestamo) => {
           return api.post(API_ENDPOINTS.prestamos.solicitar, prestamo);
         });
@@ -430,4 +430,48 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  // ==== Envío de contacto al backend (pegar dentro del DOMContentLoaded principal) ====
+const formContacto = document.getElementById('formContacto');
+const contactStatus = document.getElementById('contactStatus');
+
+if (formContacto) {
+  formContacto.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById('contactNombre')?.value.trim() || '';
+    const correo = document.getElementById('contactCorreo')?.value.trim() || '';
+    const asunto = document.getElementById('contactAsunto')?.value.trim() || 'Soporte LabPilot';
+    const mensaje = document.getElementById('contactMensaje')?.value.trim() || '';
+
+    if (!nombre || !correo || !mensaje) {
+      alert('Por favor completa nombre, correo y mensaje.');
+      return;
+    }
+
+    if (contactStatus) {
+      contactStatus.style.display = 'block';
+      contactStatus.style.color = 'black';
+      contactStatus.textContent = 'Enviando mensaje...';
+    }
+
+    try {
+      const payload = { nombre, correo, asunto, mensaje };
+      await api.post(API_ENDPOINTS.contacto, payload);
+
+      if (contactStatus) {
+        contactStatus.style.color = 'green';
+        contactStatus.textContent = 'Mensaje enviado correctamente. Gracias.';
+      }
+
+      formContacto.reset();
+    } catch (err) {
+      console.error('Error enviando contacto al backend:', err);
+      if (contactStatus) {
+        contactStatus.style.color = 'crimson';
+        contactStatus.textContent = 'Error al enviar el mensaje. Intenta de nuevo.';
+      }
+    }
+  });
+}
 });

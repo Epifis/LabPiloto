@@ -20,7 +20,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String correoRemitente;
 
-    @Value("${app.base.url:https://labpiloto.com}")
+    @Value("${app.base.url:http://localhost:8080}")
     private String baseUrl;
 
     // 🔐 ENVÍO DE CÓDIGOS MFA PARA LOGIN
@@ -231,8 +231,9 @@ public class EmailService {
             📅 Inicio: %s
 
             ¡Disfruta tu uso del laboratorio!
+            ¡No olvides llevar tu bata
 
-            Sistema LabPilot - UPC
+ 	           Sistema LabPilot - UPC
             """, nombre, lab, inicio);
 
         enviarCorreoSimple(correo, asunto, mensaje);
@@ -384,4 +385,29 @@ public class EmailService {
             System.err.println("❌ Error enviando notificación a " + correo + ": " + e.getMessage());
         }
     }
+/**
+ * Envío de contacto desde el formulario público.
+ * El correo destino usa la propiedad admin.validation.email.
+ */
+public void enviarContactoSoporte(String nombreRemitente, String correoRemitenteUser, String asunto, String mensajeUsuario) {
+    String asuntoFinal = "[Contacto LabPilot] " + (asunto == null ? "Sin asunto" : asunto);
+    String cuerpo = String.format("""
+        Nuevo mensaje desde el formulario de contacto.
+
+        Remitente: %s
+        Correo remitente: %s
+
+        Mensaje:
+        %s
+
+        -----------------
+        (Enviado por la aplicación LabPilot)
+        """, nombreRemitente == null ? "Anónimo" : nombreRemitente,
+           correoRemitenteUser == null ? "No informado" : correoRemitenteUser,
+           mensajeUsuario == null ? "" : mensajeUsuario);
+
+    // usar el correo administrador que ya cargas via @Value("${admin.validation.email}")
+    enviarCorreoSimple(correoAdministrador, asuntoFinal, cuerpo);
+}
+
 }

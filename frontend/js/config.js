@@ -4,6 +4,9 @@
 window.API_BASE_URL = 'https://labpiloto.com/api';
 
 window.API_ENDPOINTS = {
+
+  // ============ CONTACTO ============
+  contacto: `${window.API_BASE_URL}/contacto`,
   // ============ AUTENTICACIÓN ============
   auth: {
     login: `${window.API_BASE_URL}/auth/login`,

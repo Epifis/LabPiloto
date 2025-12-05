@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/api/contacto").permitAll()
 
                 // AUTENTICACIÓN - ADMIN
                 .requestMatchers("/api/auth/admin/login").permitAll()

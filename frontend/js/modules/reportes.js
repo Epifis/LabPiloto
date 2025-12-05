@@ -1,6 +1,6 @@
 import { cerrarModal, formatFecha, setupFiltroTabla } from './ui.js';
 
-// ========== NUEVO PANEL DE REPORTES CON BOTONES ==========
+// ========== NUEVO PANEL DE REPORTES ==========
 export async function mostrarReportes() {
     let html = `
         <div class="modal">
@@ -32,6 +32,7 @@ export async function mostrarReportes() {
     document.body.insertAdjacentHTML('beforeend', html);
 }
 
+// --------------------------- USUARIOS ---------------------------
 export async function reporteUsuarios() {
     try {
         cerrarModal();
@@ -44,7 +45,13 @@ export async function reporteUsuarios() {
                 <div class="modal-content">
                     <button class="btn-volver" onclick="volverAReportes()">⬅ Volver</button>
                     <span class="close" onclick="cerrarModal()">&times;</span>
-                    <h2>👤 Reporte de Usuarios</h2>
+                    <h2>Reporte de Usuarios</h2>
+                    <div class="acciones-reporte">
+                        <button class="btn-descargar" onclick="descargarPDFUsuarios()">PDF</button>
+                        <button class="btn-grafica" onclick="mostrarGraficaUsuarios()">Gráfica</button>
+                    </div>
+
+                    <canvas id="graficaUsuarios" style="margin-top:20px; display:none;"></canvas>
 
                     <input type="text" id="filtroUsuario" placeholder="Filtrar por nombre..." class="input-filtro">
 
@@ -82,9 +89,9 @@ export async function reporteUsuarios() {
     }
 }
 
+// --------------------------- LABORATORIOS ---------------------------
 export async function reporteLaboratorios() {
     try {
-        // Cerrar modal anterior
         cerrarModal();
         await new Promise(res => setTimeout(res, 80));
         const labs = await api.get(API_ENDPOINTS.laboratorios.listar);
@@ -95,6 +102,12 @@ export async function reporteLaboratorios() {
                     <button class="btn-volver" onclick="volverAReportes()">⬅ Volver</button>
                     <span class="close" onclick="cerrarModal()">&times;</span>
                     <h2>🧪 Reporte de Laboratorios</h2>
+                    <div class="acciones-reporte">
+                        <button class="btn-descargar" onclick="descargarPDFLaboratorios()">PDF</button>
+                        <button class="btn-grafica" onclick="mostrarGraficaLaboratorios()">Gráfica</button>
+                    </div>
+
+                    <canvas id="graficaLaboratorios" style="margin-top:20px; display:none;"></canvas>
 
                     <input type="text" id="filtroLab" placeholder="Filtrar por nombre..." class="input-filtro">
 
@@ -132,12 +145,12 @@ export async function reporteLaboratorios() {
     }
 }
 
+// --------------------------- ELEMENTOS ---------------------------
 export async function reporteElementos() {
     try {
         cerrarModal();
         await new Promise(res => setTimeout(res, 80));
 
-        // ✅ CORREGIDO
         const elementos = await api.get(API_ENDPOINTS.elementos.listar);
 
         let html = `
@@ -146,6 +159,12 @@ export async function reporteElementos() {
                     <button class="btn-volver" onclick="volverAReportes()">⬅ Volver</button>
                     <span class="close" onclick="cerrarModal()">&times;</span>
                     <h2>📦 Reporte de Elementos</h2>
+                    <div class="acciones-reporte">
+                        <button class="btn-descargar" onclick="descargarPDFElementos()">PDF</button>
+                        <button class="btn-grafica" onclick="mostrarGraficaElementos()">Gráfica</button>
+                    </div>
+
+                    <canvas id="graficaElementos" style="margin-top:20px; display:none;"></canvas>
 
                     <input type="text" id="filtroElem" placeholder="Filtrar por nombre..." class="input-filtro">
 
@@ -187,6 +206,7 @@ export async function reporteElementos() {
     }
 }
 
+// --------------------------- RESERVAS ---------------------------
 export async function reporteReservas() {
     try {
         cerrarModal();
@@ -200,6 +220,12 @@ export async function reporteReservas() {
                     <button class="btn-volver" onclick="volverAReportes()">⬅ Volver</button>
                     <span class="close" onclick="cerrarModal()">&times;</span>
                     <h2>📅 Reporte de Reservas</h2>
+                    <div class="acciones-reporte">
+                        <button class="btn-descargar" onclick="descargarPDFReservas()">PDF</button>
+                        <button class="btn-grafica" onclick="mostrarGraficaReservas()">Gráfica</button>
+                    </div>
+
+                    <canvas id="graficaReservas" style="margin-top:20px; display:none;"></canvas>
 
                     <input type="text" id="filtroReserva" placeholder="Filtrar por usuario o laboratorio..." class="input-filtro">
 
@@ -241,6 +267,7 @@ export async function reporteReservas() {
     }
 }
 
+// --------------------------- PRÉSTAMOS ---------------------------
 export async function reportePrestamos() {
     try {
         cerrarModal();
@@ -254,6 +281,12 @@ export async function reportePrestamos() {
                     <button class="btn-volver" onclick="volverAReportes()">⬅ Volver</button>
                     <span class="close" onclick="cerrarModal()">&times;</span>
                     <h2>📘 Reporte de Préstamos</h2>
+                    <div class="acciones-reporte">
+                        <button class="btn-descargar" onclick="descargarPDFPrestamos()">PDF</button>
+                        <button class="btn-grafica" onclick="mostrarGraficaPrestamos()">Gráfica</button>
+                    </div>
+
+                    <canvas id="graficaPrestamos" style="margin-top:20px; display:none;"></canvas>
 
                     <input type="text" id="filtroPrestamo" placeholder="Filtrar por usuario o elemento..." class="input-filtro">
 
@@ -299,3 +332,87 @@ export function volverAReportes() {
     cerrarModal();
     setTimeout(() => mostrarReportes(), 150);
 }
+
+// ===================== DESCARGA PDF =====================
+window.descargarPDF = function (titulo, tablaID, nombreArchivo) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text(titulo, 14, 20);
+
+    doc.autoTable({
+        html: "#" + tablaID,
+        startY: 30,
+        theme: "striped",
+        headStyles: { fillColor: [33, 150, 243] }
+    });
+
+    doc.save(nombreArchivo + ".pdf");
+};
+
+window.descargarPDFUsuarios = () => descargarPDF("Reporte de Usuarios", "tablaUsuarios", "reporte_usuarios");
+window.descargarPDFLaboratorios = () => descargarPDF("Reporte de Laboratorios", "tablaLabs", "reporte_laboratorios");
+window.descargarPDFElementos = () => descargarPDF("Reporte de Elementos", "tablaElementos", "reporte_elementos");
+window.descargarPDFReservas = () => descargarPDF("Reporte de Reservas", "tablaReservas", "reporte_reservas");
+window.descargarPDFPrestamos = () => descargarPDF("Reporte de Préstamos", "tablaPrestamos", "reporte_prestamos");
+
+// ===================== GRÁFICAS =====================
+let graficaActiva = null;
+
+window.generarGrafica = function(idCanvas, etiquetas, datos, etiquetaY) {
+    const canvas = document.getElementById(idCanvas);
+    canvas.style.display = "block";
+
+    if (graficaActiva) graficaActiva.destroy();
+
+    graficaActiva = new Chart(canvas.getContext('2d'), {
+        type: "bar",
+        data: {
+            labels: etiquetas,
+            datasets: [{
+                label: etiquetaY,
+                data: datos,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+};
+
+// ------------------ GRÁFICAS REPARADAS ------------------
+window.mostrarGraficaUsuarios = async function() {
+    const usuarios = await api.get(API_ENDPOINTS.usuarios.listar);
+    const activos = usuarios.filter(u => u.activo).length;
+    const inactivos = usuarios.length - activos;
+
+    generarGrafica("graficaUsuarios", ["Activos", "Inactivos"], [activos, inactivos], "Cantidad de Usuarios");
+};
+
+window.mostrarGraficaLaboratorios = async function() {
+    const labs = await api.get(API_ENDPOINTS.laboratorios.listar);
+    generarGrafica("graficaLaboratorios", labs.map(l => l.nombre), labs.map(l => l.capacidad), "Capacidad");
+};
+
+window.mostrarGraficaElementos = async function() {
+    const elementos = await api.get(API_ENDPOINTS.elementos.listar);
+    generarGrafica("graficaElementos", elementos.map(e => e.nombre), elementos.map(e => e.cantidadTotal), "Cantidad Total");
+};
+
+window.mostrarGraficaReservas = async function() {
+    const reservas = await api.get(API_ENDPOINTS.reservas.listar);
+    const meses = Array.from({ length: 12 }, (_, i) => i + 1);
+    const conteo = meses.map(m => reservas.filter(r => new Date(r.fechaInicio).getMonth() + 1 === m).length);
+    generarGrafica("graficaReservas", meses, conteo, "Reservas por Mes");
+};
+
+window.mostrarGraficaPrestamos = async function() {
+    const prestamos = await api.get(API_ENDPOINTS.prestamos.listar);
+    const mapa = {};
+    prestamos.forEach(p => mapa[p.usuario?.nombre || "?" ] = (mapa[p.usuario?.nombre || "?"] || 0) + 1);
+    generarGrafica("graficaPrestamos", Object.keys(mapa), Object.values(mapa), "Préstamos por Usuario");
+};

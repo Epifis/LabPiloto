@@ -64,6 +64,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         "/api/usuarios/reenviar-codigo",
         "/api/usuarios/firmar-contrato",
 
+        //CONTACTO
+        "/api/contacto",
+
         // RECURSOS PÚBLICOS
         "/api/laboratorios/public",
         "/api/elementos/public",
